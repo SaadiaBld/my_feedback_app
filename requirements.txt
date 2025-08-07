@@ -21,3 +21,4 @@ passlib[bcrypt]
 pytest
 pytest-mock
 pytest-cov  
+httpx
