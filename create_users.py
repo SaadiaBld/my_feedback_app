@@ -1,27 +1,23 @@
-from app import create_app, db
-from app.models import User
-from passlib.hash import bcrypt
 import os
 from dotenv import load_dotenv
+from passlib.hash import bcrypt
+from app import create_app, db
+from app.models import User
 
 load_dotenv()
 
-#créée l'application Flask
+# Crée l'application avec la vraie configuration (incluant DATABASE_URL ou POSTGRES_*)
 app = create_app()
 
-# Configuration de la base de données
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///users.db'
-app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-
+# Récupère les identifiants admin depuis les variables d’environnement
 email = os.getenv("ADMIN_EMAIL")
 password = os.getenv("ADMIN_PASSWORD")
 
 if not email or not password:
-    raise ValueError("L'email ou le mot de passe administrateur n'est pas défini dans le fichier .env")
+    raise ValueError("L'email ou le mot de passe administrateur n'est pas défini.")
 
-# On pousse le contexte de l'application Flask
+# Utilisation du contexte Flask pour accéder à la BDD
 with app.app_context():
-    # Vérifie si l'utilisateur existe déjà
     user = User.query.filter_by(email=email).first()
     if user:
         print(f"L'utilisateur {email} existe déjà. Mise à jour du mot de passe...")
@@ -32,4 +28,4 @@ with app.app_context():
         db.session.add(user)
 
     db.session.commit()
-    print("Utilisateur enregistré avec succès !")
+    print("✅ Utilisateur administrateur enregistré avec succès !")

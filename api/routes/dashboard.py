@@ -21,7 +21,6 @@ from fastapi import HTTPException
 
 router = APIRouter()
 
-
 @router.get("/health")
 def health_check(client: Client = Depends(get_bq_client)):
    try:
