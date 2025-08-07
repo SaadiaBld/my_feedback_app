@@ -1,0 +1,15 @@
+# --- Flask App ---
+Flask
+Flask-SQLAlchemy
+Flask-Login
+psycopg2-binary
+Werkzeug
+python-dotenv
+
+# --- FastAPI API ---
+fastapi
+uvicorn[standard]
+pydantic
+
+# --- Google Cloud & BigQuery ---
+google-cloud-bigquery
