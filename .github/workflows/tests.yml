@@ -54,6 +54,7 @@ jobs:
             echo "Waiting for PostgreSQL..."
             sleep 3
           done
+          sleep 5  # Additional wait time to ensure readiness
 
       - name: Run tests
         env:
