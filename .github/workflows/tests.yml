@@ -65,4 +65,4 @@ jobs:
           pytest -v --disable-warnings --durations=0 --tb=long --maxfail=1 --timeout=20
 
       - name: Log après tests
-          run: echo "✅ Tous les tests ont été exécutés. Fin du workflow."
+        run: echo "✅ Tous les tests ont été exécutés. Fin du workflow."
