@@ -6,7 +6,7 @@ load_dotenv()
 
 class Config:
     ENV = os.getenv("ENV", "dev")
-
+    SECRET_KEY = os.getenv("SECRET_KEY", "secret_key")
     # Valeurs par défaut pour tous les environnements
     POSTGRES_USER = os.getenv("POSTGRES_USER", "postgres")
     POSTGRES_PASSWORD = os.getenv("POSTGRES_PASSWORD", "postgres")
@@ -28,3 +28,4 @@ class Config:
 
     print(f"Configuration loaded: {ENV}")
     print(f"Database URI: {SQLALCHEMY_DATABASE_URI}")
+    print(f"Secret Key: {SECRET_KEY}")
