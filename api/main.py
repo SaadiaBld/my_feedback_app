@@ -28,7 +28,11 @@ app.add_middleware(
 )
 
 
-app.include_router(dashboard.router, prefix="/api/dashboard", tags=["Dashboard"])
+# api/main.py
+def create_api_app():
+    app = FastAPI()
+    app.include_router(dashboard.router, prefix="/api/dashboard")
+    return app
 
 
 #app.include_router(health.router)

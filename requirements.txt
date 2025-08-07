@@ -3,7 +3,7 @@ Flask
 Flask-SQLAlchemy
 Flask-Login
 psycopg2-binary
-Werkzeug
+#Werkzeug
 python-dotenv
 
 # --- FastAPI API ---
@@ -16,3 +16,8 @@ google-cloud-bigquery
 
 # --- authentication ---
 passlib[bcrypt]
+
+# --- Testing ---
+pytest
+pytest-mock
+pytest-cov  
