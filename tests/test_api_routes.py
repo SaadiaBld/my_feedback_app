@@ -4,7 +4,11 @@ from fastapi.testclient import TestClient
 from api.main import create_api_app
 
 def test_dummy_api_routes():
-    assert True
+    app = create_api_app()
+    with TestClient(app) as client:
+        response = client.get("/health")  # ou une route fictive existante
+        assert response.status_code == 200
+    print("✅ test_dummy_api_routes terminé")
 
 # @pytest.fixture(autouse=True)
 # def mock_get_bq_client(monkeypatch):
