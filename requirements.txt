@@ -13,3 +13,6 @@ pydantic
 
 # --- Google Cloud & BigQuery ---
 google-cloud-bigquery
+
+# --- authentication ---
+passlib[bcrypt]

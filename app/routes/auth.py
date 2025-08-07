@@ -1,6 +1,6 @@
 from flask import Blueprint, render_template, request, redirect, url_for, flash
 from flask_login import login_user, logout_user
-from werkzeug.security import check_password_hash
+from passlib.hash import bcrypt  # ✅ Utilisation de passlib
 from app import db, login_manager
 from app.models import User
 
@@ -18,11 +18,14 @@ def login():
         remember = bool(request.form.get("remember"))
 
         user = User.query.filter_by(email=email).first()
-        print("*****Hash stocké :", user.password_hash)
 
-        if user and check_password_hash(user.password_hash, password):
+        if user:
+            print("***** Hash stocké :", user.password_hash)
+
+        if user and bcrypt.verify(password, user.password_hash):  # ✅ vérification avec passlib
             login_user(user, remember=remember)
             return redirect(url_for("dashboard.dashboard"))
+
         flash("Email ou mot de passe incorrect", "error")
     return render_template("login.html")
 
