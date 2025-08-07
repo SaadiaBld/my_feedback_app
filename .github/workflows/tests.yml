@@ -36,6 +36,7 @@ jobs:
 
       - name: Set environment variables
         run: |
+          echo "ENV=test" >> $GITHUB_ENV
           echo "POSTGRES_USER=test_user" >> $GITHUB_ENV
           echo "POSTGRES_PASSWORD=test_password" >> $GITHUB_ENV
           echo "POSTGRES_DB=test_db" >> $GITHUB_ENV
