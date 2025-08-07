@@ -25,6 +25,14 @@ jobs:
           --health-timeout 5s
           --health-retries 5
 
+    env:  # ✅ Ces variables s'appliquent à toutes les steps
+      ENV: test
+      POSTGRES_USER: test_user
+      POSTGRES_PASSWORD: test_password
+      POSTGRES_DB: test_db
+      ACTIONS_STEP_DEBUG: true
+      ACTIONS_RUNNER_DEBUG: true
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -33,13 +41,6 @@ jobs:
         uses: actions/setup-python@v4
         with:
           python-version: 3.11
-
-      - name: Set environment variables
-        run: |
-          echo "ENV=test" >> $GITHUB_ENV
-          echo "POSTGRES_USER=test_user" >> $GITHUB_ENV
-          echo "POSTGRES_PASSWORD=test_password" >> $GITHUB_ENV
-          echo "POSTGRES_DB=test_db" >> $GITHUB_ENV
 
       - name: Install dependencies
         run: |
@@ -54,10 +55,11 @@ jobs:
             echo "Waiting for PostgreSQL..."
             sleep 3
           done
-          sleep 5  # Additional wait time to ensure readiness
+          sleep 3
+
+      - name: Debug ENV
+        run: env
 
       - name: Run tests
-        env:
-          ENV: test
         run: |
-          pytest --disable-warnings
+          pytest -v --disable-warnings --tb=long --maxfail=1
