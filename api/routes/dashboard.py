@@ -16,61 +16,58 @@ from api.models.responses import (
 from google.cloud.bigquery import Client
 from typing import List
 from datetime import date, timedelta
-from fastapi import HTTPException
-
 
 router = APIRouter()
 
+
 @router.get("/health")
 def health_check(client: Client = Depends(get_bq_client)):
-   try:
-       client.query("SELECT 1").result()
-       return {"status": "ok", "bigquery": "connected"}
-   except Exception:
-       return {"status": "error", "bigquery": "unreachable"}
+    try:
+        client.query("SELECT 1").result()
+        return {"status": "ok", "bigquery": "connected"}
+    except Exception:
+        return {"status": "error", "bigquery": "unreachable"}
 
 
 @router.get("/kpis", response_model=DashboardKPIs)
 def read_dashboard_kpis(
-   start_date: date,
-   end_date: date,
-   client: Client = Depends(get_bq_client),
+    start_date: date,
+    end_date: date,
+    client: Client = Depends(get_bq_client),
 ):
-   return get_weekly_kpis(client, start_date, end_date)
-
-
+    return get_weekly_kpis(client, start_date, end_date)
 
 
 @router.get("/themes", response_model=TopThemes)
 def read_top_themes(
-   start_date: date,
-   end_date: date,
-   client: Client = Depends(get_bq_client),
+    start_date: date,
+    end_date: date,
+    client: Client = Depends(get_bq_client),
 ):
-   return get_top_themes(client, start_date, end_date)
-
-
+    return get_top_themes(client, start_date, end_date)
 
 
 @router.get("/trend", response_model=List[WeeklySatisfactionPoint])
 def get_satisfaction_trend(
-   start_date: date,
-   end_date: date,
-   client: Client = Depends(get_bq_client),
+    start_date: date,
+    end_date: date,
+    client: Client = Depends(get_bq_client),
 ):
-   try:
-       return get_weekly_satisfaction_trend(client, start_date, end_date)
-   except Exception as e:
-       print(f"Erreur dans get_weekly_satisfaction_trend : {e}")
-       raise HTTPException(status_code=500, detail=str(e))
+    try:
+        return get_weekly_satisfaction_trend(client, start_date, end_date)
+    except Exception as e:
+        print(f"Erreur dans get_weekly_satisfaction_trend : {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
 
 @router.get("/themes-distribution", response_model=List[ThemeDistribution])
 def get_themes_overview(
-   start_date: date,
-   end_date: date,
-   client: Client = Depends(get_bq_client),
+    start_date: date,
+    end_date: date,
+    client: Client = Depends(get_bq_client),
 ):
-   return get_main_themes_distribution(client, start_date, end_date)
+    return get_main_themes_distribution(client, start_date, end_date)
+
 
 @router.get("/themes-satisfaction-breakdown")
 def get_satisfaction_by_theme(
@@ -103,9 +100,9 @@ def get_satisfaction_by_theme(
     data = {}
 
     for row in results:
-        theme = row["theme"]
-        sentiment = row["label_sentiment"].lower()
-        count = row["count"]
+        theme = row.theme
+        sentiment = row.label_sentiment.lower()
+        count = row.count
 
         if theme not in data:
             data[theme] = {"Positif": 0, "Neutre": 0, "Négatif": 0}
@@ -118,6 +115,7 @@ def get_satisfaction_by_theme(
             data[theme]["Négatif"] += count
 
     return data
+
 
 @router.get("/themes-satisfaction-count")
 def count_satisfaction_by_theme(
@@ -164,12 +162,12 @@ def count_satisfaction_by_theme(
         results = client.query(query).result()
         data = [
             {
-                "date_publication": row["date_publication"].isoformat(),
-                "contenu": row["contenu"],
-                "themes_score": row["themes_score"],
-                "note_client": row["note_client"],
-                "score_IA": row["score_IA"],
-                "auteur": row["auteur"]
+                "date_publication": row.date_publication.isoformat(),
+                "contenu": row.contenu,
+                "themes_score": row.themes_score,
+                "note_client": row.note_client,
+                "score_IA": row.score_IA,
+                "auteur": row.auteur,
             }
             for row in results
         ]

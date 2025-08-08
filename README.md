@@ -15,8 +15,10 @@ Ce projet est une application web qui affiche des données depuis une API, le to
 
 ## Prérequis
 
-*   Python 3.x
-*   Un environnement virtuel (recommandé)
+*   Python 3.10 ou supérieur
+*   Un environnement virtuel Python
+*   Accés à un projet GCP pour BigQuery
+*   Un fichier de service account avec credentials
 
 ## Installation
 
@@ -37,12 +39,18 @@ Ce projet est une application web qui affiche des données depuis une API, le to
 3.  **Installez les dépendances :**
 
     ```bash
-    pip install -r requirements.txt
+    pip install -r api/requirements.txt
+    pip install -r app/requirements.txt
+    pip install -r requirements-test.txt
+
     ```
 
 4.  **Configurez vos identifiants Google Cloud :**
 
     Assurez-vous que le chemin vers votre fichier de clés de service Google Cloud est correctement configuré dans votre environnement. Vous pouvez le faire en définissant la variable d'environnement `GOOGLE_APPLICATION_CREDENTIALS`.
+    ```bash
+    export GOOGLE_APPLICATION_CREDENTIALS="/chemin/vers/votre-cle.json"
+    ```
 
 ## Lancement
 
@@ -50,6 +58,7 @@ Pour lancer l'application Flask et l'API FastAPI, exécutez simplement le script
 
 ```bash
 ./start.sh
+
 ```
 
 Cela lancera :
@@ -57,3 +66,19 @@ Cela lancera :
 *   L'API FastAPI sur `http://127.0.0.1:8000`
 
 Vous pouvez ensuite accéder à l'application web dans votre navigateur à l'adresse `http://127.0.0.1:5000`.
+
+## Tests automatiques
+
+Les tests sont lancés automatiquement à chaque push ou pull request sur la branche main via GitHub Actions.
+
+    Le fichier de configuration est situé ici : .github/workflows/test.yml
+
+    Il installe les dépendances de chaque service et lance pytest.
+
+Vous pouvez aussi lancer les tests manuellement :
+
+```bash
+
+pytest -v
+
+```

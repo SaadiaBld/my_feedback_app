@@ -1,6 +1,6 @@
 from flask import Blueprint, render_template, request, redirect, url_for, flash
 from flask_login import login_user, logout_user
-from passlib.hash import bcrypt  # ✅ Utilisation de passlib
+from passlib.hash import bcrypt  # Utilisation de passlib
 from app import db, login_manager
 from app.models import User
 
@@ -22,7 +22,7 @@ def login():
         if user:
             print("***** Hash stocké :", user.password_hash)
 
-        if user and bcrypt.verify(password, user.password_hash):  # ✅ vérification avec passlib
+        if user and bcrypt.verify(password, user.password_hash):  # vérification avec passlib
             login_user(user, remember=remember)
             return redirect(url_for("dashboard.dashboard"))
 

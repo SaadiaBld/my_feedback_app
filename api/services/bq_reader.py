@@ -6,7 +6,7 @@ from api.models.responses import (
     TopThemes,
     ThemeDistribution,
 )
-from datetime import datetime, date, timedelta
+from datetime import date, timedelta
 
 
 def get_weekly_kpis(client: bigquery.Client, start_date: date, end_date: date) -> DashboardKPIs:
@@ -55,9 +55,7 @@ def get_weekly_kpis(client: bigquery.Client, start_date: date, end_date: date) -
     )
 
 
-
 def get_top_themes(client: bigquery.Client, start_date: date, end_date: date) -> TopThemes:
-
     query = """
     WITH scored_topics AS (
         SELECT 
@@ -133,7 +131,7 @@ def get_weekly_satisfaction_trend(
     result = client.query(query, job_config=job_config).result()
 
     return [
-        WeeklySatisfactionPoint(week=row["week_label"], avg_score=row["avg_score"])
+        WeeklySatisfactionPoint(week=row.week_label, avg_score=row.avg_score)
         for row in result
     ]
 
@@ -170,4 +168,7 @@ def get_main_themes_distribution(
 
     result = client.query(query, job_config=job_config).result()
 
-    return [ThemeDistribution(theme=row["theme"], count=row["count"]) for row in result]
+    return [
+        ThemeDistribution(theme=row["theme"], count=row["count"])
+        for row in result
+    ]

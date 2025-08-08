@@ -8,7 +8,7 @@ load_dotenv()  # Charge automatiquement les variables du fichier .env
 
 def create_api_app():
     # Bloc 1: pour déploiement sur Render
-    if os.getenv("ENV") != "test":
+    if os.getenv("ENV") != "dev":
         gcp_credentials_json = os.getenv("GOOGLE_APPLICATION_CREDENTIALS_JSON")
         if not gcp_credentials_json:
             raise RuntimeError("La variable GOOGLE_APPLICATION_CREDENTIALS_JSON n'est pas définie")
@@ -41,3 +41,6 @@ def create_api_app():
 
     app.include_router(dashboard.router, prefix="/api/dashboard")
     return app
+
+
+app = create_api_app()

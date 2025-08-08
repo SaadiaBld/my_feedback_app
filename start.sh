@@ -1,20 +1,21 @@
 #!/bin/bash
-uvicorn run:app --host=0.0.0.0 --port=$PORT   #port injecté par render
+#uvicorn api.run:app --host=0.0.0.0 --port=$PORT   #port injecté par render
 
-# #!/bin/bash
+#!/bin/bash
+# Script pour démarrer l'application Flask et FastAPI en local 
 
-# # Lancer Flask en arrière-plan
-# python run.py &
+echo "Démarrage en local..."
 
-# # Lancer FastAPI
-# uvicorn api.main:app --host=0.0.0.0 --port=10000 &
+# Pour Flask < 2.2
+export FLASK_APP=app.run_app
+export FLASK_DEBUG=1 # Activer le mode debug pour Flask
 
-# # Attendre que l’un des deux processus s'arrête
-# wait -n
+# Lancer Flask
+flask run --host=0.0.0.0 --port=5000 &
 
-# #bloc suivant à activer pour dev local, danc e cas, il faut commenter les lignes ci-dessus
-# # # Lancer l'application Flask en arrière-plan
-# # python run.py &
 
-# # # Lancer l'API FastAPI en arrière-plan
-# # uvicorn api.main:app --reload &
+# Lancer FastAPI
+uvicorn api.main:app --host=0.0.0.0 --port=10000 &
+
+# Attendre que l’un des deux processus s'arrête
+wait -n

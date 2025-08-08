@@ -1,0 +1,6 @@
+# --- Testing ---
+pytest
+pytest-mock
+pytest-cov  
+httpx
+pytest-timeout

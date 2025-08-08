@@ -1,7 +1,0 @@
-services:
-  - type: web
-    name: trustpilot-feedback-app
-    env: python
-    buildCommand: ""
-    startCommand: ./start.sh
-    plan: free
