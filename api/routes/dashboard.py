@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends, Query, HTTPException, Request
 from fastapi.templating import Jinja2Templates
-from api.deps import get_bq_client
-from api.services.bq_reader import (
+from deps import get_bq_client
+from services.bq_reader import (
     get_weekly_kpis,
     get_top_themes,
     get_weekly_satisfaction_trend,
