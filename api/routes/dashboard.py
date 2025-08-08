@@ -7,7 +7,7 @@ from services.bq_reader import (
     get_weekly_satisfaction_trend,
     get_main_themes_distribution,
 )
-from api.models.responses import (
+from models.responses import (
     DashboardKPIs,
     TopThemes,
     WeeklySatisfactionPoint,
