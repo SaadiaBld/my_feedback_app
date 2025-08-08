@@ -1,3 +1,3 @@
 #!/bin/bash
-export PYTHONPATH=$(pwd)
+#export PYTHONPATH=$(pwd)
 python run_app.py
