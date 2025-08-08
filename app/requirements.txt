@@ -1,5 +1,6 @@
-fastapi
-uvicorn[standard]
-pydantic
-google-cloud-bigquery
+Flask
+Flask-SQLAlchemy
+Flask-Login
+psycopg2-binary
+Werkzeug
 python-dotenv
