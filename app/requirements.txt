@@ -1,6 +1,7 @@
 Flask
 Flask-SQLAlchemy
 Flask-Login
+flask-migrate
 psycopg2-binary
 passlib
 python-dotenv

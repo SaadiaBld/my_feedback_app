@@ -1,9 +1,0 @@
-services:
-  - type: web
-    name: trustpilot-app
-    rootDir: app
-    env: python
-    rootDir: app
-    buildCommand: pip install -r requirements.txt
-    startCommand: gunicorn run_app:app --bind 0.0.0.0:$PORT
-    autoDeploy: true

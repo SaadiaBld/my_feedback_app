@@ -1,0 +1,19 @@
+# render.yaml (à la racine du repo)
+services:
+  - type: web
+    name: trustpilot-app
+    env: python
+    rootDir: app
+    buildCommand: pip install -r requirements.txt
+    startCommand: gunicorn "app:create_app()"
+    autoDeploy: true
+    envVars:
+      - key: FLASK_APP
+        value: app:create_app
+      - key: APP_ENV
+        value: prod
+      - key: RENDER
+        value: "true"
+      # SECRET_KEY et DATABASE_URL seront définies via le dashboard (DATABASE_URL en liant la DB)
+    postdeploy: |
+      flask db upgrade
