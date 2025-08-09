@@ -1,3 +1,2 @@
 #!/bin/bash
-#export PYTHONPATH=$(pwd)
-python run_app.py
+exec gunicorn --bind 0.0.0.0:$PORT run_app:app

@@ -1,8 +1,9 @@
 from flask import Blueprint, render_template, request, redirect, url_for, flash
 from flask_login import login_user, logout_user
-from passlib.hash import bcrypt  # Utilisation de passlib
-from .. import db, login_manager
-from ..models import User
+from passlib.hash import bcrypt
+from app import db, login_manager
+from app.models import User
+
 
 auth_bp = Blueprint("auth", __name__)
 
