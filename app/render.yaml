@@ -5,5 +5,5 @@ services:
     env: python
     rootDir: app
     buildCommand: pip install -r requirements.txt
-    startCommand: ./start_app.sh
+    startCommand: gunicorn run_app:app --bind 0.0.0.0:$PORT
     autoDeploy: true
