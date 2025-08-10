@@ -10,5 +10,7 @@ services:
         value: prod
       - key: RENDER
         value: "true"
+      - key: API_BASE_URL
+        value: "{{.Service.trustpilot-api.PublicUrl}}"
     postdeploy: |
       FLASK_APP=app:create_app flask db upgrade --directory app/migrations
