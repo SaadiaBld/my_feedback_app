@@ -1,5 +1,5 @@
 # app/routes/auth.py
-from flask import Blueprint, render_template, request, redirect, url_for, flash
+from flask import Blueprint, render_template, request, redirect, url_for, flash, current_app
 from flask_login import login_user, logout_user, login_required
 from werkzeug.security import check_password_hash
 from passlib.hash import bcrypt
@@ -44,11 +44,22 @@ def login():
         ok = user and verify_password(password, user.password_hash)
         print(f"[LOGIN] Résultat vérification mot de passe : {ok}")
 
+        print(f"[LOGIN] Email reçu : '{email}'")
+        print(f"[LOGIN] Password reçu (longueur) : {len(password)}")
+
         if ok:
             login_user(user, remember=remember)
             return redirect(url_for("dashboard.dashboard"))
 
         flash("Email ou mot de passe incorrect", "error")
+        current_app.logger.info(f"[LOGIN] Tentative pour {email}")
+# ...
+        current_app.logger.info(f"[LOGIN] Utilisateur trouvé : {user.email}")
+        current_app.logger.info(f"[LOGIN] Hash stocké : {user.password_hash[:25]}...")
+        # ...
+        current_app.logger.info(f"[LOGIN] Résultat vérification mot de passe : {ok}")
+        current_app.logger.info(f"[LOGIN] Email reçu : '{email}'")
+        current_app.logger.info(f"[LOGIN] Password reçu (longueur) : {len(password)}")
 
     return render_template("login.html")
 

@@ -44,4 +44,6 @@ def create_app():
     #     return "Hello from Render 🎉", 200
 
     print("*******URL Map:  ", app.url_map)
+    print("[BOOT] version=login-logs-v2")
+
     return app
