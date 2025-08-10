@@ -2,7 +2,7 @@ import pytest
 from unittest.mock import patch, MagicMock
 from app import create_app, db
 from app.models import User
-from passlib.hash import bcrypt
+from werkzeug.security import generate_password_hash
 
 @pytest.fixture
 def app():
@@ -29,7 +29,7 @@ def test_login_page(client):
 
 def test_successful_login(client, app):
     with app.app_context():
-        hashed_password = bcrypt.hash("password123")
+        hashed_password = generate_password_hash("password123")
         user = User(email="test@example.com", password_hash=hashed_password)
         db.session.add(user)
         db.session.commit()
@@ -53,7 +53,7 @@ def test_failed_login(client):
 
 def test_logout(client, app):
     with app.app_context():
-        hashed_password = bcrypt.hash("password123")
+        hashed_password = generate_password_hash("password123")
         user = User(email="test@example.com", password_hash=hashed_password)
         db.session.add(user)
         db.session.commit()
@@ -77,7 +77,7 @@ def test_dashboard_access_requires_login(client):
 @patch('app.routes.dashboard.render_template')
 def test_dashboard_page_logged_in(mock_render_template, client, app):
     with app.app_context():
-        hashed_password = bcrypt.hash("password123")
+        hashed_password = generate_password_hash("password123")
         user = User(email="test@example.com", password_hash=hashed_password)
         db.session.add(user)
         db.session.commit()

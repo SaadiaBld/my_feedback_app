@@ -2,25 +2,17 @@
 from flask import Blueprint, render_template, request, redirect, url_for, flash, current_app
 from flask_login import login_user, logout_user, login_required
 from werkzeug.security import check_password_hash
-from passlib.hash import bcrypt
 from app import db
 from app.models import User
 
 auth_bp = Blueprint("auth", __name__)
 
 def verify_password(plain: str, stored_hash: str) -> bool:
-    """Gère pbkdf2 (Werkzeug) et bcrypt (passlib)."""
+    """Vérifie le mot de passe en utilisant Werkzeug."""
 
     if not stored_hash:
         return False
-    if stored_hash.startswith("pbkdf2:"):
-        return check_password_hash(stored_hash, plain)
-    if stored_hash.startswith(("$2a$", "$2b$", "$2y$")):
-        try:
-            return bcrypt.verify(plain, stored_hash)
-        except Exception:
-            return False
-    # fallback: tente Werkzeug
+    # Tente la vérification avec Werkzeug, qui gère pbkdf2 et d'autres formats.
     try:
         return check_password_hash(stored_hash, plain)
     except Exception:

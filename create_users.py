@@ -1,42 +1,36 @@
+# create_users.py
 import os
-from dotenv import load_dotenv
 from sqlalchemy.exc import IntegrityError
-from passlib.hash import bcrypt
+from werkzeug.security import generate_password_hash
 from app import create_app, db
 from app.models import User
 
-load_dotenv()
-
-# Crée l'application avec la vraie configuration (incluant DATABASE_URL ou POSTGRES_*)
 app = create_app()
 
-# Récupère les identifiants admin depuis les variables d’environnement
-email = os.getenv("ADMIN_EMAIL")
-password = os.getenv("ADMIN_PASSWORD")
-print(f"[CREATE_USERS] Le script va hacher le mot de passe : '{password}' (longueur: {len(password) if password else 0})")
+# Paramètres
+email = (os.getenv("ADMIN_EMAIL") or "admin@admin.com").strip().lower()
+password = os.getenv("ADMIN_PASSWORD") or "change-me-now"
+allow_reset = (os.getenv("ALLOW_ADMIN_RESET", "false").lower() == "true")
 
-if not email or not password:
-    raise ValueError("L'email ou le mot de passe administrateur n'est pas défini.")
+print(f"[CREATE_USERS] admin={email} reset={allow_reset} pwd_len={len(password)}")
 
-# Normalisation email
-email = email.strip().lower()
-
-# Utilisation du contexte Flask pour accéder à la BDD
 with app.app_context():
     try:
         user = User.query.filter_by(email=email).first()
         if user:
-            print(f"[INFO] L'utilisateur {email} existe déjà. Mise à jour du mot de passe...")
-            user.password_hash = bcrypt.hash(password)
+            if allow_reset:
+                print("[CREATE_USERS] User exists → resetting password (ALLOW_ADMIN_RESET=true)")
+                user.password_hash = generate_password_hash(password)
+                db.session.commit()
+                print("[CREATE_USERS] Password updated.")
+            else:
+                print("[CREATE_USERS] User exists → NOT resetting password (ALLOW_ADMIN_RESET=false)")
         else:
-            print(f"[INFO] Création de l'utilisateur {email}...")
-            user = User(email=email, password_hash=bcrypt.hash(password))
+            print("[CREATE_USERS] Creating admin user")
+            user = User(email=email, password_hash=generate_password_hash(password))
             db.session.add(user)
-
-        db.session.commit()
-        print("✅ Utilisateur administrateur enregistré avec succès !")
-
-    except IntegrityError as e:
+            db.session.commit()
+            print("[CREATE_USERS] Admin created.")
+    except IntegrityError:
         db.session.rollback()
-        print("Erreur d'intégrité (doublon email ?)")
-        raise e
+        raise
