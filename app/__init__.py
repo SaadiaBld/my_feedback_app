@@ -28,7 +28,7 @@ def create_app():
 
     # Blueprints
     from .routes.auth import auth_bp
-    app.register_blueprint(auth_bp, url_prefix="/auth")
+    app.register_blueprint(auth_bp)
 
     from .routes.dashboard import dashboard_bp
     app.register_blueprint(dashboard_bp)  # pas besoin de prefix "/", il gère /dashboard
@@ -38,9 +38,10 @@ def create_app():
     def healthz():
         return "ok", 200
 
-    # Page d'accueil
-    @app.get("/")
-    def index():
-        return "Hello from Render 🎉", 200
+    # # Page d'accueil
+    # @app.get("/")
+    # def index():
+    #     return "Hello from Render 🎉", 200
 
+    print("*******URL Map:  ", app.url_map)
     return app
