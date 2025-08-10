@@ -3,7 +3,7 @@ services:
     name: trustpilot-app
     env: python
     buildCommand: pip install -r app/requirements.txt
-    startCommand: python create_users.py
+    startCommand: gunicorn --bind 0.0.0.0:$PORT --log-level info app.run_app:app 
     autoDeploy: true
     envVars:
       - key: ENV
