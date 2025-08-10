@@ -25,21 +25,33 @@ def verify_password(plain: str, stored_hash: str) -> bool:
     except Exception:
         return False
 
-@auth_bp.route("/", methods=["GET", "POST"])  # login à la racine
+@auth_bp.route("/", methods=["GET", "POST"])
 def login():
     if request.method == "POST":
         email = (request.form.get("email") or "").strip()
         password = request.form.get("password") or ""
         remember = bool(request.form.get("remember"))
 
+        print(f"[LOGIN] Tentative pour {email}")
+
         user = User.query.filter_by(email=email).first()
-        if user and verify_password(password, user.password_hash):
+        if user:
+            print(f"[LOGIN] Utilisateur trouvé : {user.email}")
+            print(f"[LOGIN] Hash stocké : {user.password_hash[:25]}...")
+        else:
+            print(f"[LOGIN] Aucun utilisateur trouvé pour cet email")
+
+        ok = user and verify_password(password, user.password_hash)
+        print(f"[LOGIN] Résultat vérification mot de passe : {ok}")
+
+        if ok:
             login_user(user, remember=remember)
             return redirect(url_for("dashboard.dashboard"))
 
         flash("Email ou mot de passe incorrect", "error")
 
     return render_template("login.html")
+
 
 @auth_bp.route("/logout")
 @login_required

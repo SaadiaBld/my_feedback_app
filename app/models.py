@@ -7,5 +7,5 @@ class User(db.Model, UserMixin):
     email = db.Column(db.String(120), unique=True, nullable=False)
     password_hash = db.Column(db.String(256), nullable=False)
 
-def __repr__(self):
-    return f"<User id={self.id} email={self.email}>"
+    def __repr__(self):
+        return f"<User id={self.id} email={self.email}>"
