@@ -4,6 +4,7 @@ from flask_sqlalchemy import SQLAlchemy
 from flask_login import LoginManager
 from flask_migrate import Migrate
 from .config import Config
+import logging, sys
 
 db = SQLAlchemy()
 login_manager = LoginManager()
@@ -22,6 +23,16 @@ def create_app():
 
     app = Flask(__name__, instance_relative_config=True)
     app.config.from_object(Config)
+
+        # ▶️ rendre visibles les .info()
+    app.logger.setLevel(logging.INFO)
+
+    # (au cas où) brancher sur la sortie capturée par Gunicorn
+    if not app.logger.handlers:
+        h = logging.StreamHandler(sys.stdout)
+        h.setLevel(logging.INFO)
+        app.logger.addHandler(h)
+
 
     db.init_app(app)
     migrate.init_app(app, db)

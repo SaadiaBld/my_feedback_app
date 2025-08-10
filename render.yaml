@@ -3,7 +3,7 @@ services:
     name: trustpilot-app
     env: python
     buildCommand: pip install -r app/requirements.txt
-    startCommand: gunicorn --chdir app run_app:app
+    startCommand: gunicorn --chdir app --log-level info run_app:app
     autoDeploy: true
     envVars:
       - key: ENV
