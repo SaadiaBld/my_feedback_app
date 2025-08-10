@@ -10,6 +10,7 @@ auth_bp = Blueprint("auth", __name__)
 
 def verify_password(plain: str, stored_hash: str) -> bool:
     """Gère pbkdf2 (Werkzeug) et bcrypt (passlib)."""
+
     if not stored_hash:
         return False
     if stored_hash.startswith("pbkdf2:"):
@@ -28,38 +29,33 @@ def verify_password(plain: str, stored_hash: str) -> bool:
 @auth_bp.route("/", methods=["GET", "POST"])
 def login():
     if request.method == "POST":
-        email = (request.form.get("email") or "").strip()
-        password = request.form.get("password") or ""
+        email = (request.form.get("email") or "").strip().lower()
+        password = (request.form.get("password") or "").strip()
         remember = bool(request.form.get("remember"))
 
-        print(f"[LOGIN] Tentative pour {email}")
+        # Logs sur le mot de passe entré
+        current_app.logger.info(f"[LOGIN] Tentative pour '{email}'")
+        current_app.logger.info(f"[LOGIN] Longueur mot de passe saisi: {len(password)}")
+        current_app.logger.info(f"[LOGIN] Mot de passe saisi (debug): '{password}'")
 
         user = User.query.filter_by(email=email).first()
+
         if user:
-            print(f"[LOGIN] Utilisateur trouvé : {user.email}")
-            print(f"[LOGIN] Hash stocké : {user.password_hash[:25]}...")
+            # Logs sur le mot de passe stocké
+            current_app.logger.info(f"[LOGIN] Utilisateur trouvé: {user.email}")
+            current_app.logger.info(f"[LOGIN] Longueur hash stocké: {len(user.password_hash)}")
+            current_app.logger.info(f"[LOGIN] Début hash stocké: {user.password_hash[:30]}...")
+
+            password_ok = verify_password(password, user.password_hash)
+            current_app.logger.info(f"[LOGIN] Résultat vérification mot de passe: {password_ok}")
+
+            if password_ok:
+                login_user(user, remember=remember)
+                return redirect(url_for("dashboard.dashboard"))
         else:
-            print(f"[LOGIN] Aucun utilisateur trouvé pour cet email")
-
-        ok = user and verify_password(password, user.password_hash)
-        print(f"[LOGIN] Résultat vérification mot de passe : {ok}")
-
-        print(f"[LOGIN] Email reçu : '{email}'")
-        print(f"[LOGIN] Password reçu (longueur) : {len(password)}")
-
-        if ok:
-            login_user(user, remember=remember)
-            return redirect(url_for("dashboard.dashboard"))
+            current_app.logger.info(f"[LOGIN] Aucun utilisateur trouvé pour '{email}'")
 
         flash("Email ou mot de passe incorrect", "error")
-        current_app.logger.info(f"[LOGIN] Tentative pour {email}")
-# ...
-        current_app.logger.info(f"[LOGIN] Utilisateur trouvé : {user.email}")
-        current_app.logger.info(f"[LOGIN] Hash stocké : {user.password_hash[:25]}...")
-        # ...
-        current_app.logger.info(f"[LOGIN] Résultat vérification mot de passe : {ok}")
-        current_app.logger.info(f"[LOGIN] Email reçu : '{email}'")
-        current_app.logger.info(f"[LOGIN] Password reçu (longueur) : {len(password)}")
 
     return render_template("login.html")
 

@@ -27,7 +27,7 @@ if not _db_url:
     )
 
 class Config:
-    APP_ENV = os.getenv("ENV", "dev").lower()
+    ENV = os.getenv("ENV", "dev").lower()
     SECRET_KEY = os.getenv("SECRET_KEY", "change-me-in-prod")
     SQLALCHEMY_DATABASE_URI = _db_url
     SQLALCHEMY_TRACK_MODIFICATIONS = False
@@ -45,7 +45,7 @@ try:
     masked = (Config.SQLALCHEMY_DATABASE_URI or "").split("@")[0] + "@***"
 except Exception:
     masked = "***"
-print(f"[Config] APP_ENV: {Config.APP_ENV}")
+print(f"[Config] ENV: {Config.ENV}")
 print(f"[Config] SQLALCHEMY_DATABASE_URI: {masked}")
 
 

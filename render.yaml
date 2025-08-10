@@ -6,7 +6,7 @@ services:
     startCommand: gunicorn --chdir app run_app:app
     autoDeploy: true
     envVars:
-      - key: APP_ENV
+      - key: ENV
         value: prod
       - key: RENDER
         value: "true"

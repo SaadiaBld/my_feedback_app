@@ -1,3 +1,4 @@
+# app/__init__.py
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import LoginManager
@@ -14,6 +15,11 @@ def load_user(user_id):
     return User.query.get(int(user_id))
 
 def create_app():
+    import os
+    from sqlalchemy import text  # <= importer ici
+
+    print(f"[BOOT] DATABASE_URL = {os.getenv('DATABASE_URL')}")
+
     app = Flask(__name__, instance_relative_config=True)
     app.config.from_object(Config)
 
@@ -24,26 +30,28 @@ def create_app():
     login_manager.login_view = "auth.login"
 
     # Importer les modèles pour Alembic
-    from . import models
+    from . import models  # noqa: F401
 
     # Blueprints
     from .routes.auth import auth_bp
     app.register_blueprint(auth_bp)
 
     from .routes.dashboard import dashboard_bp
-    app.register_blueprint(dashboard_bp)  # pas besoin de prefix "/", il gère /dashboard
+    app.register_blueprint(dashboard_bp)  # gère /dashboard
 
     # Healthcheck
     @app.get("/healthz")
     def healthz():
         return "ok", 200
 
-    # # Page d'accueil
-    # @app.get("/")
-    # def index():
-    #     return "Hello from Render 🎉", 200
-
     print("*******URL Map:  ", app.url_map)
     print("[BOOT] version=login-logs-v2")
+
+    # ---- DBCHECK: log exact de la DB réellement utilisée ----
+    with app.app_context():
+        url = db.engine.url
+        print(f"[DBCHECK] driver={url.drivername} host={url.host} db={url.database}")
+        who = db.session.execute(text("select current_database() as db, current_user as usr")).first()
+        print(f"[DBCHECK] current_db={who.db} current_user={who.usr}")
 
     return app
