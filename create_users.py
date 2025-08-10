@@ -13,6 +13,7 @@ app = create_app()
 # Récupère les identifiants admin depuis les variables d’environnement
 email = os.getenv("ADMIN_EMAIL")
 password = os.getenv("ADMIN_PASSWORD")
+print(f"[CREATE_USERS] Le script va hacher le mot de passe : '{password}' (longueur: {len(password) if password else 0})")
 
 if not email or not password:
     raise ValueError("L'email ou le mot de passe administrateur n'est pas défini.")
