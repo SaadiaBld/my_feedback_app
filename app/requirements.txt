@@ -6,3 +6,4 @@ psycopg2-binary
 passlib
 python-dotenv
 gunicorn
+bcrypt
