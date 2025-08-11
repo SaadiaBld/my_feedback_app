@@ -1,11 +1,11 @@
 services:
   - type: web
     name: trustpilot-api
-    rootDir: . # Changed to .
+    rootDir: api
     env: python
     buildCommand: pip install -r requirements.txt
-    startCommand: PYTHONPATH=. uvicorn main:app --host 0.0.0.0 --port $PORT # Changed startCommand
-    autoDeploy: false  # déploiement déclenché par Deploy Hook après tests
+    startCommand: uvicorn main:app --host 0.0.0.0 --port $PORT
+    autoDeploy: false
     envVars:
       - key: ENV
         value: prod
