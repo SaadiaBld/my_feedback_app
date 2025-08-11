@@ -12,16 +12,7 @@ def fast_hash(monkeypatch):
         return _orig_generate_password_hash(password, method=method, salt_length=salt_length)
     monkeypatch.setattr("werkzeug.security.generate_password_hash", _fast_gen)
 
-# --- 2) Bloquer tout appel HTTP sortant depuis la vue dashboard ---
-@pytest.fixture(autouse=True)
-def no_http(monkeypatch):
-    class DummyResp:
-        status_code = 200
-        def json(self): return {}
-        def raise_for_status(self): return None
-        text = ""
-    # cible là où requests est importé/ utilisé (dans le module de la vue)
-    monkeypatch.setattr("app.routes.dashboard.requests.get", lambda *a, **k: DummyResp())
+
 
 @pytest.fixture(scope="module")
 def app():
