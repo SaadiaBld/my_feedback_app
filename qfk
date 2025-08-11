@@ -1,0 +1,87 @@
+[33m2c6a31a[m[33m ([m[1;36mHEAD -> [m[1;32mrender[m[33m, [m[1;31morigin/render[m[33m)[m correct test_flask_routes.py to be detected during tests CI
+[33m038da86[m correct test_flask_routes.py to be detected during tests CI
+[33m63368a2[m correct test_flask_routes.py to be detected during tests CI
+[33m5f7698a[m correct test_flask_routes.py to be detected during tests CI
+[33mbf4afc1[m :** Conditionally sets  to  if  is true, ensuring this occurs before
+[33mf40b81e[m feat: Optimize Flask test suite performance
+[33m1d4ead9[m chore: - Passed a `is_testing` flag from the Flask backend to `dashboard.html`
+[33m6b7f0af[m chore test
+[33m5438bb2[m chore test
+[33m613fdf5[m chore test
+[33m759d91e[m chore test
+[33m8c5f471[m chore: change test-flask-route.py to speed up test phase on CI git
+[33m57f8a80[m chore: change test-flask-route.py to speed up test phase on CI git
+[33m5fa0051[m chore: change test-flask-route.py to speed up test phase on CI git
+[33m5a0a0a9[m chore: change test-flask-route.py to speed up test phase on CI git
+[33m771bda9[m chore: change test-flask-route.py to speed up test phase on CI git
+[33m2f9c08f[m chore: change test-flask-route.py to speed up test phase on CI git
+[33me60d4c0[m chore: launch test on CI and check delay to end
+[33m168b4ef[m chore: add timeout in tests.yml
+[33mcb7ba5a[m chore: add render branche in tests.yml for CO
+[33m62d7533[m tests ok
+[33m8ecd064[m chore: add condition ENV=prod in apo/main.py
+[33m2a7f9d4[m Clean: Supprime le dossier .render et les fichiers de configuration obsolètes
+[33m6814042[m feat(dashboard): Connect dashboard to FastAPI backend on Render
+[33m5803016[m fixbug: correct startcommand in render.yaml for app
+[33m75a01a6[m refactor: Remove passlib and bcrypt for authentication
+[33m73ccb5a[m fixbug: import bcrypt lib
+[33mc667572[m fixbug: add logs to auth.py to check logs
+[33m0f17533[m fixbug: add logs to auth.py to check logs
+[33m52d57b7[m fixbug: add logs to auth.py to check logs
+[33m3132df7[m fixbug: add logs to auth.py to check logs
+[33m7cb4014[m fixbug: add logs to auth.py to check logs
+[33m71820cb[m fixbug: add logs to auth.py to check logs
+[33m2188aa6[m chore: correct load.user function
+[33m6dab7c0[m chore: migrate db
+[33m5cbca29[m chore: migrate db
+[33mb2a292f[m chore: create render.yaml for app
+[33mddac5ab[m chore: create render.yaml for app
+[33m7847f22[m chore: create render.yaml for app
+[33m9dff5dc[m chore: create render.yaml for app
+[33m49fb910[m chore: create render.yaml for app
+[33m25eb9f8[m chore: create render.yaml for app
+[33m7dca314[m chore: create render.yaml for app
+[33m5769e81[m chore: create render.yaml for app
+[33mad05770[m chore: create render.yaml for app
+[33mcc45dd4[m chore: create render.yaml for app
+[33m365e1e4[m chore: create render.yaml for app
+[33m02d6067[m chore: create render.yaml for app
+[33mfed35fb[m chore: create render.yaml for app
+[33m312e503[m chore: create render.yaml for app
+[33m6e153e9[m chore: create render.yaml for app
+[33mfaa2eef[m chore: create render.yaml for app
+[33m32697f8[m chore: create render.yaml for app
+[33m0abe166[m chore: create render.yaml for app
+[33m82666ac[m chore: create render.yaml for app
+[33mddc9160[m fixbug: create render.yaml in api directory
+[33m7569e7d[m fixbug: create render.yaml in api directory
+[33md2480d6[m fixbug: create render.yaml in api directory
+[33m06f7528[m fixbug: create render.yaml in api directory
+[33mef6c0e7[m chore: setup render deployment with render.yaml
+[33m7d0a168[m[33m ([m[1;31morigin/archive/main-old[m[33m, [m[1;32marchive/main-old[m[33m)[m chore: fix db for local tests vs for deploy to avoid errors on render
+[33m7865086[m chore: fix db for local tests vs for deploy to avoid errors on render
+[33m246b3a7[m chore: fix db for local tests vs for deploy to avoid errors on render
+[33m1fc18ec[m chore: fix db for local tests vs for deploy to avoid errors on render
+[33me9b62e3[m chore: tests automation
+[33m790e18c[m chore: tests automation
+[33m20fe0f9[m chore: tests automation
+[33m2a8fc70[m chore: tests automation
+[33m2fd9a24[m chore: tests automation
+[33m1e957be[m chore: tests automation
+[33m7e95c48[m chore: tests automation
+[33ma37642a[m chore: tests automation
+[33mfcdcd0e[m chore: tests automation
+[33mea9627a[m chore: tests automation
+[33m817d205[m chore: tests automation
+[33m77c2d19[m chore: tests automation
+[33m256b2ba[m chore: tests automation
+[33m3b6ec63[m chore: tests automation
+[33mb20a314[m chore: tests automation
+[33m2204323[m chore: tests automation
+[33m04b7e5b[m chore: tests automation
+[33m501ba83[m chore: tests automation
+[33m4a96cb3[m chore: tests automation
+[33mc2b7501[m chore: tests automation
+[33m9921c8a[m chore: tests automation
+[33meb776e5[m push files
+[33mf33249f[m chore: publish project on repo
