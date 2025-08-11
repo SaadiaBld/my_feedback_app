@@ -1,0 +1,22 @@
+# --- Testing ---
+pytest
+pytest-mock
+pytest-cov  
+httpx
+pytest-timeout
+
+
+fastapi
+uvicorn[standard]
+pydantic
+google-cloud-bigquery
+python-dotenv
+
+Flask
+Flask-SQLAlchemy
+Flask-Login
+flask-migrate
+psycopg2-binary
+
+python-dotenv
+gunicorn

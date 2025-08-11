@@ -1,5 +1,5 @@
 from fastapi import FastAPI
-from routes import dashboard
+from api.routes import dashboard
 import os
 from dotenv import load_dotenv
 from fastapi.middleware.cors import CORSMiddleware

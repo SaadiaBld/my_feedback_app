@@ -1,16 +1,46 @@
+# render.yaml — blueprint unique (racine du repo)
 services:
+  # === Service 1 : Flask App (UI) ===
   - type: web
     name: trustpilot-app
     env: python
-    buildCommand: pip install -r app/requirements.txt
-    startCommand: gunicorn --bind 0.0.0.0:$PORT --log-level info app.run_app:app 
+    rootDir: app
+    buildCommand: pip install --no-cache-dir -r requirements.txt
+    startCommand: gunicorn "app:create_app()" --bind 0.0.0.0:$PORT --workers 3 --log-level info
+    healthCheckPath: /healthz
     autoDeploy: true
     envVars:
       - key: ENV
         value: prod
-      - key: RENDER
-        value: "true"
+      - key: PYTHONPATH
+        value: .
+      - key: SECRET_KEY
+        sync: false
+      - key: DATABASE_URL
+        sync: false
+      # L'URL publique de l'API (résolue car on est en blueprint unifié)
       - key: API_BASE_URL
-        value: "{{.Service.trustpilot-api.PublicUrl}}"
+        value: "{{ .Service.trustpilot-api.PublicUrl }}"
     postdeploy: |
-      FLASK_APP=app:create_app flask db upgrade --directory app/migrations
+      FLASK_APP=app:create_app flask db upgrade --directory migrations
+
+  # === Service 2 : FastAPI (API BigQuery) ===
+  - type: web
+    name: trustpilot-api
+    env: python
+    rootDir: api
+    buildCommand: pip install --no-cache-dir -r requirements.txt
+    startCommand: uvicorn api.main:app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /api/dashboard/health
+    autoDeploy: true
+    envVars:
+      - key: ENV
+        value: prod
+      - key: PYTHONPATH
+        value: .
+      # Contenu JSON du service account GCP (coller le JSON complet dans la variable Render)
+      - key: GOOGLE_APPLICATION_CREDENTIALS_JSON
+        sync: false
+      # (Optionnel) jeton si tu protèges l’API par Bearer
+      # - key: API_TOKEN
+      #   sync: false

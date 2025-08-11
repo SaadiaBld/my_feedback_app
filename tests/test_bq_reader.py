@@ -73,12 +73,16 @@ def test_get_top_themes(mock_bq_client):
 
 def test_get_weekly_satisfaction_trend(mock_bq_client):
     # Mock la réponse de BigQuery
-    mock_rows = [
-        {"week_label": "Semaine 2 (08/01/2024)", "avg_score": 4.5},
-        {"week_label": "Semaine 2 (09/01/2024)", "avg_score": 4.6},
-    ]
+    mock_row1 = MagicMock()
+    type(mock_row1).week_label = PropertyMock(return_value="Semaine 2 (08/01/2024)")
+    type(mock_row1).avg_score = PropertyMock(return_value=4.5)
+
+    mock_row2 = MagicMock()
+    type(mock_row2).week_label = PropertyMock(return_value="Semaine 2 (09/01/2024)")
+    type(mock_row2).avg_score = PropertyMock(return_value=4.6)
+
     mock_result = MagicMock()
-    mock_result.result.return_value = mock_rows
+    mock_result.result.return_value = [mock_row1, mock_row2]
     mock_bq_client.query.return_value = mock_result
 
     start_date = date(2024, 1, 8)
