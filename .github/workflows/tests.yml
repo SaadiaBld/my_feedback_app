@@ -2,7 +2,7 @@ name: Python Tests
 
 on:
   push:
-    branches: [ main ]
+    branches: [ main, render ]
   pull_request:
     branches: [ main ]
 
@@ -68,4 +68,4 @@ jobs:
           pytest -v --disable-warnings --maxfail=1 --timeout=30
 
       - name: Done
-        run: echo "✅ Tests completed."
+        run: echo "Tests completés."
