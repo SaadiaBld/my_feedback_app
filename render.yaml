@@ -3,14 +3,13 @@ services:
     name: trustpilot-app
     env: python
     buildCommand: pip install -r app/requirements.txt
-    startCommand: gunicorn --bind 0.0.0.0:$PORT --log-level info app.run_app:app 
-    autoDeploy: true
+    startCommand: gunicorn "app:create_app()" --bind 0.0.0.0:$PORT --workers 3 --log-level info
+    autoDeploy: false   # on déploie via Deploy Hook après que les tests passent
     envVars:
       - key: ENV
         value: prod
       - key: RENDER
         value: "true"
-      - key: API_BASE_URL
-        value: "{{.Service.trustpilot-api.PublicUrl}}"
+      # API_BASE_URL sera défini dans Render Settings → Environment
     postdeploy: |
       FLASK_APP=app:create_app flask db upgrade --directory app/migrations

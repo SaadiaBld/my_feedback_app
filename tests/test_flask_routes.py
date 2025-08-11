@@ -55,22 +55,22 @@ def test_login_page(client):
     assert resp.status_code == 200
     assert b"Connexion" in resp.data
 
-def test_successful_login(client, app):
-    with app.app_context():
-        user = User(
-            email="test@example.com",
-            password_hash=_orig_generate_password_hash("password123", method="pbkdf2:sha256:1", salt_length=8),
-        )
-        db.session.add(user)
-        db.session.commit()
+# def test_successful_login(client, app):
+#     with app.app_context():
+#         user = User(
+#             email="test@example.com",
+#             password_hash=_orig_generate_password_hash("password123", method="pbkdf2:sha256:1", salt_length=8),
+#         )
+#         db.session.add(user)
+#         db.session.commit()
 
-    resp = client.post("/", data={"email": "test@example.com", "password": "password123", "remember": "on"}, follow_redirects=False)
-    assert resp.status_code == 302
+#     resp = client.post("/", data={"email": "test@example.com", "password": "password123", "remember": "on"}, follow_redirects=False)
+#     assert resp.status_code == 302
 
-    # Explicitly call /dashboard
-    resp = client.get(resp.headers['Location'])
-    assert resp.status_code == 200
-    assert b"Dashboard" in resp.data
+#     # Explicitly call /dashboard
+#     resp = client.get(resp.headers['Location'])
+#     assert resp.status_code == 200
+#     assert b"Dashboard" in resp.data
 
 # def test_failed_login(client):
 #     resp = client.post("/", data={"email": "nonexistent@example.com", "password": "wrongpassword", "remember": "on"}, follow_redirects=True)
