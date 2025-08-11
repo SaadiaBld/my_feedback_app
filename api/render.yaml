@@ -1,10 +1,10 @@
 services:
   - type: web
     name: trustpilot-api
-    rootDir: api  # Explicitly set the root directory for the API service
+    rootDir: .  # Explicitly set the root directory for the API service
     env: python
     buildCommand: pip install -r requirements.txt
-    startCommand: uvicorn api.main:app --host 0.0.0.0 --port $PORT
+    startCommand: uvicorn main:app --host 0.0.0.0 --port $PORT # Changed startCommand
     autoDeploy: false  # déploiement déclenché par Deploy Hook après tests
     envVars:
       - key: ENV
