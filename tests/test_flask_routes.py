@@ -12,7 +12,7 @@ def fast_hash(monkeypatch):
         return _orig_generate_password_hash(password, method=method, salt_length=salt_length)
     monkeypatch.setattr("werkzeug.security.generate_password_hash", _fast_gen)
 
-@pytest.fixture
+@pytest.fixture(scope="module")
 def app(monkeypatch):
     # 👉 Forcer la config AVANT create_app()
     # Ton Config prend DATABASE_URL en ENV=prod, sinon il reconstruit depuis POSTGRES_*.
