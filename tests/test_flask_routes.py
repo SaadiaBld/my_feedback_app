@@ -64,8 +64,11 @@ def test_successful_login(client, app):
         db.session.add(user)
         db.session.commit()
 
-    # follow_redirects -> GET /dashboard -> (requests.get est stubé par no_http)
-    resp = client.post("/", data={"email": "test@example.com", "password": "password123", "remember": "on"}, follow_redirects=True)
+    resp = client.post("/", data={"email": "test@example.com", "password": "password123", "remember": "on"}, follow_redirects=False)
+    assert resp.status_code == 302
+
+    # Explicitly call /dashboard
+    resp = client.get(resp.headers['Location'])
     assert resp.status_code == 200
     assert b"Dashboard" in resp.data
 

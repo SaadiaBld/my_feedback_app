@@ -342,7 +342,9 @@ window.onload = function () {
   const sunday = new Date(today.setDate(monday.getDate() + 6));
   document.getElementById("startDate").value = monday.toISOString().split("T")[0];
   document.getElementById("endDate").value = sunday.toISOString().split("T")[0];
-  loadDashboardData();
+  if ("{{ is_testing }}" !== "True") {
+    loadDashboardData();
+  }
 };
 </script>
 </body>
