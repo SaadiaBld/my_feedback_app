@@ -5,41 +5,43 @@ from app import create_app, db
 from app.models import User
 from werkzeug.security import generate_password_hash as _orig_generate_password_hash
 
-# Hashing turbo en tests
+# --- 1) Hashing turbo ---
 @pytest.fixture(autouse=True)
 def fast_hash(monkeypatch):
     def _fast_gen(password, method="pbkdf2:sha256:1", salt_length=8):
         return _orig_generate_password_hash(password, method=method, salt_length=salt_length)
     monkeypatch.setattr("werkzeug.security.generate_password_hash", _fast_gen)
 
+# --- 2) Bloquer tout appel HTTP sortant depuis la vue dashboard ---
+@pytest.fixture(autouse=True)
+def no_http(monkeypatch):
+    class DummyResp:
+        status_code = 200
+        def json(self): return {}
+        def raise_for_status(self): return None
+        text = ""
+    # cible là où requests est importé/ utilisé (dans le module de la vue)
+    monkeypatch.setattr("app.routes.dashboard.requests.get", lambda *a, **k: DummyResp())
+
 @pytest.fixture(scope="module")
 def app():
-    # Store original env vars to restore later
-    original_env = {
-        "ENV": os.environ.get("ENV"),
-        "DATABASE_URL": os.environ.get("DATABASE_URL")
-    }
-
-    # Set env vars for the module-scoped app
-    os.environ["ENV"] = "prod"
+    # forcer SQLite en mémoire AVANT create_app()
+    old_env = {k: os.environ.get(k) for k in ("ENV", "DATABASE_URL")}
+    os.environ["ENV"] = "prod"                     # pour que ta Config lise DATABASE_URL
     os.environ["DATABASE_URL"] = "sqlite:///:memory:"
 
     app = create_app()
     app.config["TESTING"] = True
-    app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///:memory:"
 
     with app.app_context():
         db.create_all()
         yield app
         db.drop_all()
 
-    # Restore original env vars after tests are done
-    for key, value in original_env.items():
-        if value is None:
-            if key in os.environ:
-                del os.environ[key]
-        else:
-            os.environ[key] = value
+    # restore env
+    for k, v in old_env.items():
+        if v is None: os.environ.pop(k, None)
+        else: os.environ[k] = v
 
 @pytest.fixture
 def client(app):
@@ -54,12 +56,7 @@ def logged_in_client(client, app):
         )
         db.session.add(user)
         db.session.commit()
-
-    client.post("/", data={
-        "email": "test@example.com",
-        "password": "password123",
-        "remember": "on",
-    })
+    client.post("/", data={"email": "test@example.com", "password": "password123", "remember": "on"})
     return client
 
 def test_login_page(client):
@@ -76,22 +73,13 @@ def test_successful_login(client, app):
         db.session.add(user)
         db.session.commit()
 
-    resp = client.post("/", data={
-        "email": "test@example.com",
-        "password": "password123",
-        "remember": "on",
-    }, follow_redirects=True)
-
+    # follow_redirects -> GET /dashboard -> (requests.get est stubé par no_http)
+    resp = client.post("/", data={"email": "test@example.com", "password": "password123", "remember": "on"}, follow_redirects=True)
     assert resp.status_code == 200
     assert b"Dashboard" in resp.data
 
 def test_failed_login(client):
-    resp = client.post("/", data={
-        "email": "nonexistent@example.com",
-        "password": "wrongpassword",
-        "remember": "on",
-    }, follow_redirects=True)
-
+    resp = client.post("/", data={"email": "nonexistent@example.com", "password": "wrongpassword", "remember": "on"}, follow_redirects=True)
     assert resp.status_code == 200
     assert b"Email ou mot de passe incorrect" in resp.data
 
