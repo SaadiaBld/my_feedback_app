@@ -2,7 +2,7 @@ name: Python Tests
 
 on:
   push:
-    branches: [ main, render ]
+    branches: [ '**']
   pull_request:
     branches: [ main ]
 
@@ -15,6 +15,7 @@ jobs:
       postgres:
         image: postgres:13
         env:
+          PYTHONPATH: .
           POSTGRES_USER: test_user
           POSTGRES_PASSWORD: test_password
           POSTGRES_DB: test_db
@@ -27,7 +28,7 @@ jobs:
 
     env:
       PYTHONPATH: .
-      ENV: dev                    # <— avoids GCP setup during tests
+      ENV: test                    # <— avoids GCP setup during tests
       SECRET_KEY: testkey
       POSTGRES_USER: test_user
       POSTGRES_PASSWORD: test_password
