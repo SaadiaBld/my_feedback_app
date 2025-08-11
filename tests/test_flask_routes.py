@@ -30,7 +30,10 @@ def app():
     with app.app_context():
         db.create_all()
         yield app
-        db.drop_all()
+        # Instead of db.drop_all(), clear data from tables
+        for table in reversed(db.metadata.sorted_tables):
+            db.session.execute(table.delete())
+        db.session.commit()
 
     # Restore original env vars after tests are done
     for key, value in original_env.items():
