@@ -1,6 +1,6 @@
 from google.cloud import bigquery
 from typing import List
-from models.responses import (
+from ..models.responses import (
     WeeklySatisfactionPoint,
     DashboardKPIs,
     TopThemes,

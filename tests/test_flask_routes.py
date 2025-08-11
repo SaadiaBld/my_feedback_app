@@ -1,5 +1,5 @@
 import pytest
-from unittest.mock import patch, MagicMock
+from unittest.mock import patch, MagicMock, ANY
 from app import create_app, db
 from app.models import User
 from werkzeug.security import generate_password_hash
@@ -91,4 +91,5 @@ def test_dashboard_page_logged_in(mock_render_template, client, app):
 
     response = client.get('/dashboard')
     assert response.status_code == 200
-    mock_render_template.assert_called_once_with("dashboard.html")
+    mock_render_template.assert_called_once_with("dashboard.html", api_base_url=ANY) #on peut pas tester la valeur precise de api_base_url car change selon si env est en dev ou en prod, on vérifie que la clé est bien transmise 
+    
