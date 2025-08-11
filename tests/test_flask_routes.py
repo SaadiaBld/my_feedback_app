@@ -15,7 +15,7 @@ def fast_hash(monkeypatch):
         return _orig_generate_password_hash(password, method=method, salt_length=salt_length)
     monkeypatch.setattr("werkzeug.security.generate_password_hash", _fast_gen)
 
-@pytest.fixture
+@pytest.fixture(scope="module")
 def app():
     app = create_app()
     app.config['TESTING'] = True
