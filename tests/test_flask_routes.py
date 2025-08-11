@@ -13,21 +13,32 @@ def fast_hash(monkeypatch):
     monkeypatch.setattr("werkzeug.security.generate_password_hash", _fast_gen)
 
 @pytest.fixture(scope="module")
-def app(monkeypatch):
-    # 👉 Forcer la config AVANT create_app()
-    # Ton Config prend DATABASE_URL en ENV=prod, sinon il reconstruit depuis POSTGRES_*.
-    monkeypatch.setenv("ENV", "prod")
-    monkeypatch.setenv("DATABASE_URL", "sqlite:///:memory:")
+def app():
+    # Store original env vars to restore later
+    original_env = {
+        "ENV": os.environ.get("ENV"),
+        "DATABASE_URL": os.environ.get("DATABASE_URL")
+    }
+
+    # Set env vars for the module-scoped app
+    os.environ["ENV"] = "prod"
+    os.environ["DATABASE_URL"] = "sqlite:///:memory:"
 
     app = create_app()
     app.config["TESTING"] = True
-    # Si tu as une condition dans ton code du style "if not app.testing: faire DBCHECK"
-    # elle sautera grâce à TESTING=True
 
     with app.app_context():
         db.create_all()
         yield app
         db.drop_all()
+
+    # Restore original env vars after tests are done
+    for key, value in original_env.items():
+        if value is None:
+            if key in os.environ:
+                del os.environ[key]
+        else:
+            os.environ[key] = value
 
 @pytest.fixture
 def client(app):
