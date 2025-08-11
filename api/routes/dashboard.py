@@ -1,4 +1,6 @@
 from fastapi import APIRouter, Depends, Query, HTTPException, Request
+from flask import Blueprint, jsonify
+import subprocess
 from fastapi.templating import Jinja2Templates
 from ..deps import get_bq_client
 from ..services.bq_reader import (
@@ -27,6 +29,14 @@ def health_check(client: Client = Depends(get_bq_client)):
         return {"status": "ok", "bigquery": "connected"}
     except Exception:
         return {"status": "error", "bigquery": "unreachable"}
+    
+@bp.route("/version")
+def version():
+    try:
+        sha = subprocess.check_output(["git", "rev-parse", "HEAD"]).decode().strip()
+    except Exception as e:
+        sha = f"Erreur récupération commit: {e}"
+    return jsonify({"commit": sha})
 
 
 @router.get("/kpis", response_model=DashboardKPIs)
