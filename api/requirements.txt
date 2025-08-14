@@ -11,7 +11,7 @@ Flask-Login
 flask-migrate
 psycopg2-binary
 passlib[bcrypt]
-
+python-multipart
 # Dépendances communes
 python-dotenv
 python-jose[cryptography]
