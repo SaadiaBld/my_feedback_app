@@ -1,5 +1,5 @@
 from fastapi import FastAPI
-from api.routes import dashboard
+from api.routes import dashboard, auth
 import os
 from dotenv import load_dotenv
 from fastapi.middleware.cors import CORSMiddleware
@@ -39,7 +39,9 @@ def create_api_app():
         allow_headers=["*"],
     )
 
+   
     app.include_router(dashboard.router, prefix="/api/dashboard")
+    app.include_router(auth.router, tags=["Authentication"])
     return app
 
 
