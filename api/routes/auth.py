@@ -1,8 +1,7 @@
 from fastapi import APIRouter, Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordRequestForm
-from sqlalchemy.orm import Session
 from app.models import User
-from app.dbs import get_db
+from app.dbs import get_db  # <-- IMPORT CORRIGÉ
 from werkzeug.security import check_password_hash
 from ..security import create_access_token
 from datetime import timedelta
@@ -10,7 +9,7 @@ from datetime import timedelta
 router = APIRouter()
 
 @router.post("/token", summary="Crée un jeton d'accès JWT")
-def login_for_access_token(form_data: OAuth2PasswordRequestForm = Depends(), db: Session = Depends(get_db)):
+def login_for_access_token(form_data: OAuth2PasswordRequestForm = Depends(), db = Depends(get_db)):
     """
     Fournissez un email (dans le champ username) et un mot de passe pour obtenir un jeton d'accès.
     """
