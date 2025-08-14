@@ -1,25 +1,18 @@
-from app import db, create_app
-from contextlib import contextmanager
+import os
+from sqlalchemy import create_engine
+from sqlalchemy.orm import sessionmaker
+from app.config import Config # On réutilise la config pour l'URL
 
-# Crée une instance de l'application Flask pour avoir le contexte d'application
-app = create_app()
+# Moteur de base de données SQLAlchemy standard
+engine = create_engine(Config.SQLALCHEMY_DATABASE_URI)
 
-@contextmanager
-def get_db_session():
-    """Fournit une session de base de données gérée."""
-    session = db.session
-    try:
-        yield session
-        session.commit()
-    except Exception:
-        session.rollback()
-        raise
-    finally:
-        session.close()
+# Créateur de session
+SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
-# Dépendance pour FastAPI
+# Dépendance FastAPI pour fournir une session
 def get_db():
-    """Dépendance FastAPI pour obtenir une session de base de données."""
-    with app.app_context():
-        with get_db_session() as session:
-            yield session
+    db = SessionLocal()
+    try:
+        yield db
+    finally:
+        db.close()
