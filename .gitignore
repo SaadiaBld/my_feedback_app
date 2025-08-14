@@ -176,3 +176,5 @@ credentials
 
 #archive
 /archives
+qfk
+.coverage*

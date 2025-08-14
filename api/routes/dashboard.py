@@ -1,7 +1,4 @@
 from fastapi import APIRouter, Depends, Query, HTTPException, Request
-from flask import Blueprint, jsonify
-import subprocess
-from fastapi.templating import Jinja2Templates
 from ..deps import get_bq_client
 from ..services.bq_reader import (
     get_weekly_kpis,
@@ -18,9 +15,9 @@ from ..models.responses import (
 from google.cloud.bigquery import Client
 from typing import List
 from datetime import date, timedelta
+from ..security import get_current_user # Importation de la dépendance de sécurité
 
 router = APIRouter()
-
 
 @router.get("/health")
 def health_check(client: Client = Depends(get_bq_client)):
@@ -30,13 +27,6 @@ def health_check(client: Client = Depends(get_bq_client)):
     except Exception:
         return {"status": "error", "bigquery": "unreachable"}
     
-@bp.route("/version")
-def version():
-    try:
-        sha = subprocess.check_output(["git", "rev-parse", "HEAD"]).decode().strip()
-    except Exception as e:
-        sha = f"Erreur récupération commit: {e}"
-    return jsonify({"commit": sha})
 
 
 @router.get("/kpis", response_model=DashboardKPIs)
@@ -44,6 +34,7 @@ def read_dashboard_kpis(
     start_date: date,
     end_date: date,
     client: Client = Depends(get_bq_client),
+    current_user: str = Depends(get_current_user), # Ajout de la dépendance de sécurité
 ):
     return get_weekly_kpis(client, start_date, end_date)
 
@@ -53,6 +44,7 @@ def read_top_themes(
     start_date: date,
     end_date: date,
     client: Client = Depends(get_bq_client),
+    current_user: str = Depends(get_current_user), # Ajout de la dépendance de sécurité
 ):
     return get_top_themes(client, start_date, end_date)
 
@@ -62,6 +54,7 @@ def get_satisfaction_trend(
     start_date: date,
     end_date: date,
     client: Client = Depends(get_bq_client),
+    current_user: str = Depends(get_current_user), # Ajout de la dépendance de sécurité
 ):
     try:
         return get_weekly_satisfaction_trend(client, start_date, end_date)
@@ -75,6 +68,7 @@ def get_themes_overview(
     start_date: date,
     end_date: date,
     client: Client = Depends(get_bq_client),
+    current_user: str = Depends(get_current_user), # Ajout de la dépendance de sécurité
 ):
     return get_main_themes_distribution(client, start_date, end_date)
 
@@ -84,6 +78,7 @@ def get_satisfaction_by_theme(
     start_date: date,
     end_date: date,
     client: Client = Depends(get_bq_client),
+    current_user: str = Depends(get_current_user), # Ajout de la dépendance de sécurité
 ):
     """
     Retourne, pour chaque thème, le nombre d'avis positifs, neutres et négatifs.
@@ -132,6 +127,7 @@ def count_satisfaction_by_theme(
     start_date: date,
     end_date: date,
     client: Client = Depends(get_bq_client),
+    current_user: str = Depends(get_current_user), # Ajout de la dépendance de sécurité
 ):
     query = f"""
         WITH score_moyen_par_verbatim AS (
