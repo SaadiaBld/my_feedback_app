@@ -15,8 +15,7 @@ on:
 jobs:
   test:
     runs-on: ubuntu-latest
-    # AJOUT: Démarrage du service PostgreSQL
-    services:
+    services:       # Démarrage du service PostgreSQL temporaire pour les tests
       postgres:
         image: postgres:13
         env:
