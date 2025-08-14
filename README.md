@@ -78,6 +78,15 @@ Ce projet utilise une chaîne de CI/CD automatisée grâce à **GitHub Actions**
 *   **Render** : Plateforme d'hébergement pour l'application et l'API, dont les déploiements sont déclenchés par des webhooks.
 *   **cURL** : Utilisé pour appeler les webhooks de déploiement de Render.
 
+### Configuration Requise
+
+Pour que la chaîne de déploiement soit pleinement fonctionnelle, les secrets suivants doivent être configurés dans les paramètres du dépôt GitHub (`Settings > Secrets and variables > Actions`) :
+
+*   `RENDER_DEPLOY_HOOK_API` : Le "deploy hook" fourni par le service Render pour l'API.
+*   `RENDER_DEPLOY_HOOK_APP` : Le "deploy hook" fourni par le service Render pour l'application web.
+
+Sans ces secrets, le job `deploy` échouera car il ne pourra pas déclencher la mise à jour sur Render.
+
 ### Déclencheurs de la chaîne (Triggers)
 
 Le workflow est conçu pour s'adapter au cycle de vie du développement :
