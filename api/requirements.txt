@@ -3,3 +3,4 @@ uvicorn[standard]
 pydantic
 google-cloud-bigquery
 python-dotenv
+python-jose[cryptography]

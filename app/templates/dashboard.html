@@ -135,6 +135,7 @@
 
 <script>
 const API_BASE = "{{ api_base_url }}";
+const JWT_TOKEN = "{{ jwt_token }}"; // Récupérer le token JWT
 let trendChart, themeChart, sentimentChart;
 
 const doughnutColors = [
@@ -149,6 +150,22 @@ function isSunday(date) {
   return new Date(date).getDay() === 0;
 }
 
+async function fetchData(url) {
+  const headers = {
+    'Authorization': `Bearer ${JWT_TOKEN}`
+  };
+  const response = await fetch(url, { headers });
+  if (!response.ok) {
+    if (response.status === 401) {
+      alert("Session expirée ou non autorisée. Veuillez vous reconnecter.");
+      window.location.href = "/"; // Rediriger vers la page de connexion
+    } else {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+  }
+  return response.json();
+}
+
 async function loadDashboardData() {
   const start = document.getElementById("startDate").value;
   const end = document.getElementById("endDate").value;
@@ -159,12 +176,12 @@ async function loadDashboardData() {
   }
 
   try {
-    const kpi = await fetch(`${API_BASE}/api/dashboard/kpis?start_date=${start}&end_date=${end}`).then(r => r.json());
-    const themes = await fetch(`${API_BASE}/api/dashboard/themes?start_date=${start}&end_date=${end}`).then(r => r.json());
-    const trend = await fetch(`${API_BASE}/api/dashboard/trend?start_date=${start}&end_date=${end}`).then(r => r.json());
-    const dist = await fetch(`${API_BASE}/api/dashboard/themes-distribution?start_date=${start}&end_date=${end}`).then(r => r.json());
-    const sentiments = await fetch(`${API_BASE}/api/dashboard/themes-satisfaction-breakdown?start_date=${start}&end_date=${end}`).then(r => r.json());
-    const count = await fetch(`${API_BASE}/api/dashboard/themes-satisfaction-count?start_date=${start}&end_date=${end}`).then(r => r.json());
+    const kpi = await fetchData(`${API_BASE}/api/dashboard/kpis?start_date=${start}&end_date=${end}`);
+    const themes = await fetchData(`${API_BASE}/api/dashboard/themes?start_date=${start}&end_date=${end}`);
+    const trend = await fetchData(`${API_BASE}/api/dashboard/trend?start_date=${start}&end_date=${end}`);
+    const dist = await fetchData(`${API_BASE}/api/dashboard/themes-distribution?start_date=${start}&end_date=${end}`);
+    const sentiments = await fetchData(`${API_BASE}/api/dashboard/themes-satisfaction-breakdown?start_date=${start}&end_date=${end}`);
+    const count = await fetchData(`${API_BASE}/api/dashboard/themes-satisfaction-count?start_date=${start}&end_date=${end}`);
 
     const startDate = new Date(start);
     const endDate = new Date(end);
@@ -338,7 +355,7 @@ function renderVerbatimsTable(data) {
 
 window.onload = function () {
   const today = new Date();
-  const monday = new Date(today.setDate(today.getDate() - today.getDay() + 1));
+  const monday = new Date(today.setDate(today.getDay() === 0 ? today.getDate() - 6 : today.getDate() - today.getDay() + 1));
   const sunday = new Date(today.setDate(monday.getDate() + 6));
   document.getElementById("startDate").value = monday.toISOString().split("T")[0];
   document.getElementById("endDate").value = sunday.toISOString().split("T")[0];

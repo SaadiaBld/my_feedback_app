@@ -1,11 +1,14 @@
 import pytest
-from unittest.mock import MagicMock
+from unittest.mock import MagicMock, patch
 from fastapi.testclient import TestClient
 from api.main import create_api_app
 from api.deps import get_bq_client
+from jose import jwt
+from datetime import datetime, timedelta
+import os
 
 @pytest.fixture
-def client():
+def client(monkeypatch):
     app = create_api_app()
 
     # Mock complet de get_bq_client
@@ -26,7 +29,17 @@ def client():
     # Override de la dépendance FastAPI
     app.dependency_overrides[get_bq_client] = lambda: mock_client
 
-    return TestClient(app)
+    # Generate a test JWT
+    test_user_email = "test@example.com"
+    to_encode = {"sub": test_user_email}
+    expire = datetime.utcnow() + timedelta(minutes=15)
+    to_encode.update({"exp": expire})
+    test_jwt = jwt.encode(to_encode, 'test-secret-key', algorithm="HS256")
+
+    # Create a TestClient with the generated JWT in headers
+    test_client = TestClient(app)
+    test_client.headers["Authorization"] = f"Bearer {test_jwt}"
+    return test_client
 
 def test_kpis_route(client):
     response = client.get("/api/dashboard/kpis", params={

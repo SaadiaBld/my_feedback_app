@@ -1,11 +1,27 @@
 # app/routes/auth.py
-from flask import Blueprint, render_template, request, redirect, url_for, flash, current_app
+from flask import Blueprint, render_template, request, redirect, url_for, flash, current_app, session
 from flask_login import login_user, logout_user, login_required
 from werkzeug.security import check_password_hash
 from app import db
 from app.models import User
+from jose import jwt
+from datetime import datetime, timedelta
+import os
 
 auth_bp = Blueprint("auth", __name__)
+
+SECRET_KEY = os.getenv("SECRET_KEY")
+ALGORITHM = "HS256"
+
+def create_access_token(data: dict, expires_delta: timedelta | None = None):
+    to_encode = data.copy()
+    if expires_delta:
+        expire = datetime.utcnow() + expires_delta
+    else:
+        expire = datetime.utcnow() + timedelta(minutes=30) # Durée par défaut pour le token Flask
+    to_encode.update({"exp": expire})
+    encoded_jwt = jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
+    return encoded_jwt
 
 def verify_password(plain: str, stored_hash: str) -> bool:
     """Vérifie le mot de passe en utilisant Werkzeug."""
@@ -43,6 +59,9 @@ def login():
 
             if password_ok:
                 login_user(user, remember=remember)
+                # Générer le token JWT et le stocker dans la session
+                access_token = create_access_token(data={"sub": user.email})
+                session["jwt_token"] = access_token
                 return redirect(url_for("dashboard.dashboard"))
         else:
             current_app.logger.info(f"[LOGIN] Aucun utilisateur trouvé pour '{email}'")
@@ -56,5 +75,6 @@ def login():
 @login_required
 def logout():
     logout_user()
+    session.pop("jwt_token", None) # Supprimer le token de la session lors de la déconnexion
     return redirect(url_for("auth.login"))
 
