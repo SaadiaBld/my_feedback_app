@@ -1,6 +1,17 @@
+# Dépendances de l'API
 fastapi
 uvicorn[standard]
 pydantic
 google-cloud-bigquery
+
+# Dépendances de l'application (requises par l'API pour l'accès BDD)
+Flask
+Flask-SQLAlchemy
+Flask-Login
+flask-migrate
+psycopg2-binary
+passlib[bcrypt]
+
+# Dépendances communes
 python-dotenv
 python-jose[cryptography]
