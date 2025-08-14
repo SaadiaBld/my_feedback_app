@@ -1,18 +1,81 @@
-name: CD (Render Deploy + Smoke)
+name: CI/CD - Tests and Deployment
 
 on:
-  # Lance manuellement si besoin
+  # Déclenche sur les PR pour lancer les tests
+  pull_request:
+    branches:
+      - main
+  # Déclenche sur push/merge sur main pour lancer tests ET déploiement
+  push:
+    branches:
+      - main
+  # Garde la possibilité de lancer manuellement
   workflow_dispatch:
-  # Se lance automatiquement après succès du workflow "Python Tests" sur main
-  workflow_run:
-    workflows: ["Python Tests"]
-    types: [completed]
-    branches: [main]
 
 jobs:
+  test:
+    runs-on: ubuntu-latest
+    # AJOUT: Démarrage du service PostgreSQL
+    services:
+      postgres:
+        image: postgres:13
+        env:
+          POSTGRES_USER: test_user
+          POSTGRES_PASSWORD: test_password
+          POSTGRES_DB: test_db
+        ports: ["5432:5432"]
+        options: >-
+          --health-cmd "pg_isready -U test_user -d test_db"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    env:
+      PYTHONPATH: .
+      ENV: test
+      SECRET_KEY: testkey
+      # AJOUT: Variables d'environnement pour se connecter à la BDD de test
+      POSTGRES_USER: test_user
+      POSTGRES_PASSWORD: test_password
+      POSTGRES_DB: test_db
+      POSTGRES_HOST: localhost
+      POSTGRES_PORT: 5432
+      GOOGLE_APPLICATION_CREDENTIALS_JSON: "{}"
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: "pip"
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r api/requirements.txt
+          pip install -r app/requirements.txt
+          pip install -r requirements-test.txt
+      
+      # AJOUT: Etape pour attendre que la BDD soit prête
+      - name: Wait for PostgreSQL
+        run: |
+          for i in {1..20}; do
+            pg_isready -h "$POSTGRES_HOST" -p "$POSTGRES_PORT" -U "$POSTGRES_USER" -d "$POSTGRES_DB" && break
+            echo "Waiting for PostgreSQL..."
+            sleep 3
+          done
+
+      - name: Run tests
+        run: pytest
+
   deploy:
-    # Ne déploie que si les tests sont PASS
-    if: ${{ github.event.workflow_run.conclusion == 'success' || github.event_name == 'workflow_dispatch' }}
+    # Le job 'deploy' ne se lance que si le job 'test' a réussi
+    needs: test
+    # Et que si l'événement est un push sur main (ou un lancement manuel)
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main' || github.event_name == 'workflow_dispatch'
     runs-on: ubuntu-latest
     steps:
       - name: Trigger Render deploy - API
@@ -20,11 +83,16 @@ jobs:
       - name: Trigger Render deploy - APP
         run: curl -fsSL -X POST "${{ secrets.RENDER_DEPLOY_HOOK_APP }}"
 
-  smoke:
+  smoke-test:
+    # Le 'smoke-test' ne se lance que si le déploiement a été déclenché
     needs: deploy
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main' || github.event_name == 'workflow_dispatch'
     runs-on: ubuntu-latest
     steps:
-      - name: Wait for API to be healthy
+      - name: Wait 30s for services to restart
+        run: sleep 30
+
+      - name: Smoke Test API
         run: |
           for i in {1..30}; do
             if curl -fsS https://trustpilot-api.onrender.com/api/dashboard/health >/dev/null; then
@@ -33,7 +101,7 @@ jobs:
           done
           echo "API failed to become healthy" >&2; exit 1
 
-      - name: Wait for App to be healthy
+      - name: Smoke Test App
         run: |
           for i in {1..30}; do
             if curl -fsS https://my-feedback-app-q9l9.onrender.com/healthz >/dev/null; then
