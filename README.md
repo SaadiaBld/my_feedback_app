@@ -7,18 +7,22 @@ Ce projet est une application web qui affiche des données depuis une API, le to
 *   **`app/`**: Contient l'application web Flask.
     *   **`templates/`**: Fichiers HTML pour l'interface utilisateur.
     *   **`routes/`**: Logique de routage de l'application Flask.
+    *   **`run_app.py`**: Point d'entrée pour lancer l'application Flask (utilisé par Gunicorn).
 *   **`api/`**: Contient l'API FastAPI qui expose les données.
     *   **`routes/`**: Endpoints de l'API.
     *   **`services/`**: Logique métier pour récupérer les données (par exemple, depuis BigQuery).
-*   **`run.py`**: Point d'entrée pour lancer l'application Flask.
-*   **`start.sh`**: Script pour lancer l'application Flask et l'API FastAPI simultanément.
+    *   **`db_models.py`**: Modèles de base de données spécifiques à l'API.
+    *   **`database.py`**: Configuration de la connexion à la base de données pour l'API.
+    *   **`deps.py`**: Dépendances FastAPI (incluant la session DB).
+*   **`.env`**: Fichier de configuration des variables d'environnement locales (non versionné).
+*   **`start.sh`**: Script pour lancer l'application Flask et l'API FastAPI simultanément en local.
 
 ## Prérequis
 
 *   Python 3.10 ou supérieur
 *   Un environnement virtuel Python
-*   Accés à un projet GCP pour BigQuery
-*   Un fichier de service account avec credentials
+*   Accès à un projet GCP pour BigQuery
+*   Un fichier de service account avec credentials Google Cloud
 
 ## Installation
 
@@ -26,7 +30,7 @@ Ce projet est une application web qui affiche des données depuis une API, le to
 
     ```bash
     git clone <url_du_depot>
-    cd my_app_trustpilot
+    cd my_feedback_app_clean # Assurez-vous d'être dans le bon répertoire
     ```
 
 2.  **Créez et activez un environnement virtuel :**
@@ -36,34 +40,64 @@ Ce projet est une application web qui affiche des données depuis une API, le to
     source venv/bin/activate
     ```
 
-3.  **Installez les dépendances :**
+3.  **Installez toutes les dépendances :**
 
     ```bash
-    pip install -r api/requirements.txt
-    pip install -r app/requirements.txt
     pip install -r requirements-test.txt
-
     ```
+    *(Ce fichier contient toutes les dépendances nécessaires pour l'application, l'API et les tests.)*
 
-4.  **Configurez vos identifiants Google Cloud :**
+4.  **Configurez vos variables d'environnement locales (`.env`) :**
 
-    Assurez-vous que le chemin vers votre fichier de clés de service Google Cloud est correctement configuré dans votre environnement. Vous pouvez le faire en définissant la variable d'environnement `GOOGLE_APPLICATION_CREDENTIALS`.
+    Créez un fichier nommé `.env` à la racine de votre projet (s'il n'existe pas). Ce fichier est ignoré par Git et contient vos configurations sensibles ou spécifiques à votre environnement local.
+
+    ```dotenv
+    # Variables d'environnement pour le développement local
+
+    # Configuration de la base de données PostgreSQL (si non définie par DATABASE_URL)
+    POSTGRES_USER=votre_utilisateur_db
+    POSTGRES_PASSWORD=votre_mot_de_passe_db
+    POSTGRES_DB=votre_nom_db
+    POSTGRES_HOST=localhost
+    POSTGRES_PORT=5432
+
+    # Clé secrète pour les sessions Flask et la signature JWT (changez-la !)
+    SECRET_KEY=une_cle_secrete_tres_longue_et_complexe
+
+    # Chemin vers votre fichier de clés de service Google Cloud (pour l'API locale)
+    # Exemple : GOOGLE_APPLICATION_CREDENTIALS=./credentials/ma-cle-gcp.json
+    GOOGLE_APPLICATION_CREDENTIALS=/chemin/vers/votre-cle-gcp.json
+
+    # URL de base de l'API pour l'application Flask (doit correspondre au port de l'API)
+    API_BASE_URL=http://127.0.0.1:10000
+
+    # Environnement (pour le débogage local)
+    ENV=dev
+    ```
+    *Assurez-vous de remplacer les valeurs par les vôtres.*
+
+5.  **Initialisez la base de données et créez un utilisateur de test (local) :**
+
     ```bash
-    export GOOGLE_APPLICATION_CREDENTIALS="/chemin/vers/votre-cle.json"
-    ```
+    # Crée les tables de la base de données
+    python create_tables.py
 
-## Lancement
+    # Crée un utilisateur de test (email: test@example.com, mdp: password)
+    python create_users.py
+    ```
+    *(Ces scripts sont idempotents et peuvent être exécutés plusieurs fois sans problème.)*
+
+## Lancement en local
 
 Pour lancer l'application Flask et l'API FastAPI, exécutez simplement le script `start.sh` :
 
 ```bash
 ./start.sh
-
 ```
 
 Cela lancera :
 *   L'application Flask sur `http://127.0.0.1:5000`
-*   L'API FastAPI sur `http://127.0.0.1:8000`
+*   L'API FastAPI sur `http://127.0.0.1:10000`
 
 Vous pouvez ensuite accéder à l'application web dans votre navigateur à l'adresse `http://127.0.0.1:5000`.
 
@@ -75,17 +109,26 @@ Ce projet utilise une chaîne de CI/CD automatisée grâce à **GitHub Actions**
 
 *   **GitHub Actions** : Orchestrateur de la chaîne CI/CD.
 *   **Python & Pytest** : Pour l'exécution des tests unitaires et d'intégration.
-*   **Render** : Plateforme d'hébergement pour l'application et l'API, dont les déploiements sont déclenchés par des webhooks.
+*   **Render** : Plateforme d'hébergement pour l'application et l'API.
 *   **cURL** : Utilisé pour appeler les webhooks de déploiement de Render.
 
-### Configuration Requise
+### Configuration Requise sur Render
 
-Pour que la chaîne de déploiement soit pleinement fonctionnelle, les secrets suivants doivent être configurés dans les paramètres du dépôt GitHub (`Settings > Secrets and variables > Actions`) :
+Pour que le déploiement fonctionne sur Render, vous devez configurer les variables d'environnement directement dans le tableau de bord de chaque service Render.
 
-*   `RENDER_DEPLOY_HOOK_API` : Le "deploy hook" fourni par le service Render pour l'API.
-*   `RENDER_DEPLOY_HOOK_APP` : Le "deploy hook" fourni par le service Render pour l'application web.
+**Pour le service de l'application Flask (ex: `trustpilot-app`) :**
 
-Sans ces secrets, le job `deploy` échouera car il ne pourra pas déclencher la mise à jour sur Render.
+*   `ENV`: `prod`
+*   `SECRET_KEY`: La même clé secrète que dans votre `.env` local.
+*   `DATABASE_URL`: L'URL de connexion à votre base de données PostgreSQL sur Render (Render la fournit).
+*   `RENDER`: `true` (souvent défini automatiquement par Render).
+
+**Pour le service de l'API FastAPI (ex: `trustpilot-api`) :**
+
+*   `ENV`: `prod`
+*   `SECRET_KEY`: La même clé secrète que dans votre `.env` local.
+*   `DATABASE_URL`: L'URL de connexion à votre base de données PostgreSQL sur Render (Render la fournit).
+*   `GOOGLE_APPLICATION_CREDENTIALS_JSON`: Le **contenu complet** de votre fichier de clés JSON Google Cloud.
 
 ### Déclencheurs de la chaîne (Triggers)
 
@@ -141,7 +184,5 @@ Les tests sont lancés automatiquement à chaque push ou pull request sur la bra
 Vous pouvez aussi lancer les tests manuellement :
 
 ```bash
-
 pytest -v
-
 ```

@@ -4,11 +4,17 @@ import os
 from dotenv import load_dotenv
 from fastapi.middleware.cors import CORSMiddleware
 
-load_dotenv()  # Charge automatiquement les variables du fichier .env
+load_dotenv()
+
+# --- Lignes de débogage à ajouter ---
+print(f"DEBUG: os.getenv('ENV') = {os.getenv('ENV')}")
+print(f"DEBUG: os.getenv('GOOGLE_APPLICATION_CREDENTIALS_JSON') = { (os.getenv('GOOGLE_APPLICATION_CREDENTIALS_JSON')[:10] + '... (truncated)') if os.getenv('GOOGLE_APPLICATION_CREDENTIALS_JSON') else 'None'}")
+# --- Fin des lignes de débogage ---
 
 def create_api_app():
     # Bloc 1: pour déploiement sur Render
     if os.getenv("ENV") == "prod":
+        print("DEBUG: Bloc 'prod' des credentials activé.") # Ligne de débogage
         gcp_credentials_json = os.getenv("GOOGLE_APPLICATION_CREDENTIALS_JSON")
         if not gcp_credentials_json:
             raise RuntimeError("La variable GOOGLE_APPLICATION_CREDENTIALS_JSON n'est pas définie")
@@ -18,12 +24,9 @@ def create_api_app():
         with open(creds_path, "w") as f:
             f.write(gcp_credentials_json)
         os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = creds_path
-
-    # Bloc local (à activer pour exécution locale)
-    # gcp_creds = os.getenv("GOOGLE_APPLICATION_CREDENTIALS")
-    # if os.getenv("ENV") != "test":
-    #     if not gcp_creds or not os.path.exists(gcp_creds):
-    #         raise FileNotFoundError(f"Fichier de credentials introuvable : {gcp_creds}")
+        print(f"DEBUG: GOOGLE_APPLICATION_CREDENTIALS set to {os.getenv('GOOGLE_APPLICATION_CREDENTIALS')}") # Ligne de débogage
+    else:
+        print("DEBUG: Bloc 'prod' des credentials SKIPPÉ. ENV n'est pas 'prod'.") # Ligne de débogage
 
     app = FastAPI(
         title="Dashboard API",

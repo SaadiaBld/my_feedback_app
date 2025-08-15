@@ -1,7 +1,18 @@
-from app.run_app import app  # Importe l'instance unique de l'app
-from app import db           # Importe l'objet db associé à cette app
+import os
+from sqlalchemy import create_engine
+from sqlalchemy.orm import sessionmaker
+from app.config import Config # On réutilise la config pour l'URL
 
+# Moteur de base de données SQLAlchemy standard
+engine = create_engine(Config.SQLALCHEMY_DATABASE_URI)
+
+# Créateur de session
+SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
+
+# Dépendance FastAPI pour fournir une session
 def get_db():
-    """Dépendance FastAPI qui fournit une session BDD en utilisant le contexte de l'app Flask."""
-    with app.app_context():
-        yield db.session
+    db = SessionLocal()
+    try:
+        yield db
+    finally:
+        db.close()
