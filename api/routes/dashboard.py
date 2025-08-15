@@ -17,15 +17,36 @@ from typing import List
 from datetime import date, timedelta
 from ..security import get_current_user # Importation de la dépendance de sécurité
 
+from fastapi import APIRouter, Depends
+from google.cloud import bigquery
+from ..deps import get_bq_client
+
 router = APIRouter()
 
 @router.get("/health")
-def health_check(client: Client = Depends(get_bq_client)):
+async def health_check(bq_client: bigquery.Client = Depends(get_bq_client)):
+    """
+    Vérifie l'état de santé de l'API et de ses dépendances.
+    """
+    bigquery_status = "disconnected"
+    bigquery_error = None
     try:
-        client.query("SELECT 1").result()
-        return {"status": "ok", "bigquery": "connected"}
-    except Exception:
-        return {"status": "error", "bigquery": "unreachable"}
+        # Tente une opération simple pour vérifier la connexion BigQuery
+        bq_client.list_datasets(max_results=1)
+        bigquery_status = "connected"
+    except Exception as e:
+        bigquery_status = "failed"
+        bigquery_error = str(e)
+
+    response = {
+        "status": "ok",
+        "message": "API is healthy",
+        "bigquery": bigquery_status
+    }
+    if bigquery_error:
+        response["bigquery_error_details"] = bigquery_error
+
+    return response
     
 
 

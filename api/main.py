@@ -8,7 +8,7 @@ load_dotenv()
 
 # --- Lignes de débogage à ajouter ---
 print(f"DEBUG: os.getenv('ENV') = {os.getenv('ENV')}")
-print(f"DEBUG: os.getenv('GOOGLE_APPLICATION_CREDENTIALS_JSON') = {os.getenv('GOOGLE_APPLICATION_CREDENTIALS_JSON')[:10]}... (truncated)")
+print(f"DEBUG: os.getenv('GOOGLE_APPLICATION_CREDENTIALS_JSON') = { (os.getenv('GOOGLE_APPLICATION_CREDENTIALS_JSON')[:10] + '... (truncated)') if os.getenv('GOOGLE_APPLICATION_CREDENTIALS_JSON') else 'None'}")
 # --- Fin des lignes de débogage ---
 
 def create_api_app():

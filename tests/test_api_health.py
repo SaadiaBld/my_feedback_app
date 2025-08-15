@@ -22,3 +22,4 @@ def test_health_check_route(client):
     response = client.get("/api/dashboard/health")
     assert response.status_code == 200
     assert response.json()["status"] == "ok"
+    assert response.json()["bigquery"] == "connected"
