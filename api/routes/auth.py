@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordRequestForm
-from app.models import User
-from app.dbs import get_db  # <-- IMPORT CORRIGÉ
+from ..db_models import User
+from .deps import get_db
 from werkzeug.security import check_password_hash
 from ..security import create_access_token
 from datetime import timedelta
