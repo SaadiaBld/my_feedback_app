@@ -8,7 +8,7 @@ import logging, sys
 
 db = SQLAlchemy()
 login_manager = LoginManager()
-migrate = Migrate()
+migrate = Migrate(directory="app/migrations")
 
 @login_manager.user_loader
 def load_user(user_id):

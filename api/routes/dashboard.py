@@ -21,7 +21,7 @@ from fastapi import APIRouter, Depends
 from google.cloud import bigquery
 from ..deps import get_bq_client
 
-router = APIRouter()
+router = APIRouter(tags=["Dashboard"])
 
 @router.get("/health")
 async def health_check(bq_client: bigquery.Client = Depends(get_bq_client)):

@@ -1,21 +1,24 @@
-#!/bin/bash
-#uvicorn api.run:app --host=0.0.0.0 --port=$PORT   #port injecté par render
+#!/usr/bin/env bash
+set -euo pipefail
 
-#!/bin/bash
-# Script pour démarrer l'application Flask et FastAPI en local 
+# Aller à la racine du repo (au cas où Render lance depuis un autre cwd)
+cd "$(dirname "$0")"/..
 
-echo "Démarrage en local..."
+# Pour que les imports "api.xxx" ou "app.xxx" marchent
+export PYTHONPATH="$PYTHONPATH:$(pwd)"
 
-# Pour Flask < 2.2
-export FLASK_APP=app.run_app
-export FLASK_DEBUG=1 # Activer le mode debug pour Flask
+echo "==> Running Alembic migrations…"
+# Option A : si ton alembic.ini lit l'URL via env (recommandé)
+#   alembic.ini:  sqlalchemy.url = ${DATABASE_URL}
+alembic upgrade head
 
-# Lancer Flask
-flask run --host=0.0.0.0 --port=5000 &
+# Option B (si tu préfères forcer l’URL via env.py):
+# Dans alembic/env.py, faire:
+#   import os
+#   from alembic import context
+#   context.config.set_main_option("sqlalchemy.url", os.getenv("DATABASE_URL"))
 
-
-# Lancer FastAPI
-uvicorn api.main:app --host=0.0.0.0 --port=10000 &
-
-# Attendre que l’un des deux processus s'arrête
-wait -n
+echo "==> Starting Gunicorn…"
+exec gunicorn --bind 0.0.0.0:$PORT app.run_app:app \
+  -k uvicorn.workers.UvicornWorker \
+  --workers 2 --threads 8

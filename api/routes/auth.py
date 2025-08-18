@@ -1,31 +1,43 @@
+# 
+# api/auth.py
+import os
+import sys
+import traceback
+from datetime import timedelta
 from fastapi import APIRouter, Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordRequestForm
-from ..db_models import User
-from ..deps import get_db
-from werkzeug.security import check_password_hash
-from ..security import create_access_token
-from datetime import timedelta
+from api.security import create_access_token, get_current_user 
 
-router = APIRouter()
+router = APIRouter(tags=["Authentication"])
 
-@router.post("/token", summary="Crée un jeton d'accès JWT")
-def login_for_access_token(form_data: OAuth2PasswordRequestForm = Depends(), db = Depends(get_db)):
-    """
-    Fournissez un email (dans le champ username) et un mot de passe pour obtenir un jeton d'accès.
-    """
-    user = db.query(User).filter(User.email == form_data.username).first()
+ADMIN_EMAIL = os.getenv("ADMIN_EMAIL") or os.getenv("AUTH_EMAIL")
+ADMIN_PASSWORD = os.getenv("ADMIN_PASSWORD")
 
-    if not user or not check_password_hash(user.password_hash, form_data.password):
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Incorrect username or password",
-            headers={"WWW-Authenticate": "Bearer"},
-        )
+@router.post("/token")
+def login(form: OAuth2PasswordRequestForm = Depends()):
+    print("--- Entering /token endpoint ---", file=sys.stderr)
+    print(f"ADMIN_EMAIL from env: {ADMIN_EMAIL}", file=sys.stderr)
+    print(f"form.username: {form.username}", file=sys.stderr)
 
-    access_token_expires = timedelta(minutes=30)
-    access_token = create_access_token(
-        data={"sub": user.email},
-        expires_delta=access_token_expires
-    )
+    if not ADMIN_EMAIL or not ADMIN_PASSWORD:
+        print("ERROR: ADMIN_EMAIL or ADMIN_PASSWORD not configured.", file=sys.stderr)
+        raise HTTPException(status_code=500, detail="Auth not configured (ADMIN_EMAIL/ADMIN_PASSWORD missing)")
 
-    return {"access_token": access_token, "token_type": "bearer"}
+    if not (form.username == ADMIN_EMAIL and form.password == ADMIN_PASSWORD):
+        print("ERROR: Invalid credentials.", file=sys.stderr)
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid credentials")
+
+    print("Credentials verified. Creating access token...", file=sys.stderr)
+    try:
+        token = create_access_token({"sub": ADMIN_EMAIL}, expires_delta=timedelta(hours=1))
+        print("Access token created successfully.", file=sys.stderr)
+    except Exception as e:
+        print(f"ERROR during create_access_token: {e}", file=sys.stderr)
+        traceback.print_exc(file=sys.stderr)
+        raise
+        
+    return {"access_token": token, "token_type": "bearer"}
+
+@router.get("/auth/check")
+def auth_check(email: str = Depends(get_current_user)):
+    return {"ok": True, "sub": email}
