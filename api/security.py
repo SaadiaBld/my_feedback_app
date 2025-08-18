@@ -1,7 +1,7 @@
 # api/security.py
 from datetime import datetime, timedelta, timezone
 from typing import Optional
-from jose import jwt, JWTError, ExpiredSignatureError, JWTClaimsError, JWKError
+from jose import jwt, JWTError, ExpiredSignatureError
 from fastapi import HTTPException, status, Depends
 from fastapi.security import OAuth2PasswordBearer
 from dotenv import load_dotenv
@@ -52,17 +52,11 @@ def verify_token(token: str):
             detail="Token expired",
             headers={"WWW-Authenticate": "Bearer"},
         )
-    except (JWTClaimsError, JWKError, JWTError) as e:
+    except JWTError as e:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail=f"Invalid token: {str(e)}",
             headers={"WWW-Authenticate": "Bearer"},
-        )
-    except Exception:
-        traceback.print_exc(file=sys.stderr)
-        raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail="internal_error",
         )
 
 def get_current_user(token: str = Depends(oauth2_scheme)):

@@ -1,17 +1,27 @@
-from fastapi import FastAPI, Request
-from fastapi.responses import JSONResponse
-from api.routes import dashboard, auth
+import logging
 import os
+import sys
 from dotenv import load_dotenv
+from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
-import traceback, sys
+from fastapi.responses import JSONResponse
 
+from api.routes import auth, dashboard
+
+# Load environment variables
 load_dotenv()
 
 # --- Lignes de débogage à ajouter ---
 print(f"DEBUG: os.getenv('ENV') = {os.getenv('ENV')}")
 print(f"DEBUG: os.getenv('GOOGLE_APPLICATION_CREDENTIALS_JSON') = { (os.getenv('GOOGLE_APPLICATION_CREDENTIALS_JSON')[:10] + '... (truncated)') if os.getenv('GOOGLE_APPLICATION_CREDENTIALS_JSON') else 'None'}")
 # --- Fin des lignes de débogage ---
+
+# Config logging app
+logging.basicConfig(
+    level=logging.INFO,
+    format="%(asctime)s %(levelname)s %(name)s: %(message)s",
+)
+logger = logging.getLogger("app")
 
 def create_api_app():
     # Bloc 1: pour déploiement sur Render
@@ -36,9 +46,31 @@ def create_api_app():
         version="1.0.0"
     )
 
+    # Logs des routes au démarrage
+    @app.on_event("startup")
+    async def log_routes():
+        for r in app.routes:
+            try:
+                logger.info("ROUTE %s %s", getattr(r, "methods", None), r.path)
+            except Exception:
+                pass
+
+    # Middleware: log minimal des requêtes
+    @app.middleware("http")
+    async def log_requests(request: Request, call_next):
+        logger.info("REQ %s %s", request.method, request.url.path)
+        try:
+            response = await call_next(request)
+        except Exception:
+            logger.exception("Unhandled exception")
+            raise
+        logger.info("RES %s %s -> %s", request.method, request.url.path, response.status_code)
+        return response
+
+    # Handler global: JSON 500 propre
     @app.exception_handler(Exception)
     async def all_errors(request: Request, exc: Exception):
-        traceback.print_exc(file=sys.stderr)  # visible dans les logs Render
+        logger.exception("Unhandled error on %s %s", request.method, request.url.path)
         return JSONResponse({"ok": False, "error": "internal_error"}, status_code=500)
 
     app.add_middleware(
@@ -49,10 +81,8 @@ def create_api_app():
         allow_headers=["*"],
     )
 
-   
     app.include_router(dashboard.router, prefix="/api/dashboard")
     app.include_router(auth.router, tags=["Authentication"])
     return app
-
 
 app = create_api_app()
