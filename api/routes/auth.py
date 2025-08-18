@@ -6,9 +6,9 @@ import traceback
 from datetime import timedelta
 from fastapi import APIRouter, Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordRequestForm
-from api.security import create_access_token, get_current_user  # ton fichier security.py
+from api.security import create_access_token, get_current_user 
 
-router = APIRouter(tags=["auth"])
+router = APIRouter(tags=["Authentication"])
 
 ADMIN_EMAIL = os.getenv("ADMIN_EMAIL") or os.getenv("AUTH_EMAIL")
 ADMIN_PASSWORD = os.getenv("ADMIN_PASSWORD")

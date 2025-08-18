@@ -82,7 +82,7 @@ def create_api_app():
     )
 
     app.include_router(dashboard.router, prefix="/api/dashboard")
-    app.include_router(auth.router, tags=["Authentication"])
+    app.include_router(auth.router)
     return app
 
 app = create_api_app()
