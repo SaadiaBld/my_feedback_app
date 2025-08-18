@@ -35,8 +35,10 @@ def verify_token(token: str):
             token,
             SECRET_KEY,
             algorithms=[ALGORITHM],
-            options={"require_exp": True},
-            leeway=JWT_LEEWAY_SECONDS,
+            options={
+                "require_exp": True,
+                "leeway": JWT_LEEWAY_SECONDS,
+            },
         )
         email: Optional[str] = payload.get("sub")
         if not email:
