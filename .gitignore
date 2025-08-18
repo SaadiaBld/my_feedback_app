@@ -178,3 +178,6 @@ credentials
 /archives
 qfk
 .coverage*
+todo.md
+.benchmarks/
+.vscode/

@@ -79,8 +79,7 @@ Ce projet est une application web qui affiche des données depuis une API, le to
 5.  **Initialisez la base de données et créez un utilisateur de test (local) :**
 
     ```bash
-    # Crée les tables de la base de données
-    python create_tables.py
+    
 
     # Crée un utilisateur de test (email: test@example.com, mdp: password)
     python create_users.py
