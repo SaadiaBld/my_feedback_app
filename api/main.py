@@ -1,8 +1,10 @@
-from fastapi import FastAPI
+from fastapi import FastAPI, Request
+from fastapi.responses import JSONResponse
 from api.routes import dashboard, auth
 import os
 from dotenv import load_dotenv
 from fastapi.middleware.cors import CORSMiddleware
+import traceback, sys
 
 load_dotenv()
 
@@ -33,6 +35,11 @@ def create_api_app():
         description="API d'accès aux KPIs hebdomadaires",
         version="1.0.0"
     )
+
+    @app.exception_handler(Exception)
+    async def all_errors(request: Request, exc: Exception):
+        traceback.print_exc(file=sys.stderr)  # visible dans les logs Render
+        return JSONResponse({"ok": False, "error": "internal_error"}, status_code=500)
 
     app.add_middleware(
         CORSMiddleware,
