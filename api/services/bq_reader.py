@@ -14,44 +14,38 @@ def get_weekly_kpis(client: bigquery.Client, start_date: date, end_date: date) -
     previous_end = end_date - timedelta(days=7)
 
     query = """
-        WITH current_week AS (
-            SELECT rating
-            FROM `trustpilot-satisfaction.reviews_dataset.reviews`
-            WHERE scrape_date BETWEEN @start_date AND @end_date
-        ),
-        previous_week AS (
-            SELECT rating
-            FROM `trustpilot-satisfaction.reviews_dataset.reviews`
-            WHERE scrape_date BETWEEN @previous_start AND @previous_end
-        )
-        SELECT
-            (SELECT COUNT(*) FROM current_week) AS current_reviews,
-            (SELECT COUNT(*) FROM previous_week) AS previous_reviews,
-            (SELECT ROUND(AVG(rating), 2) FROM current_week) AS current_avg_rating,
-            (SELECT ROUND(AVG(rating), 2) FROM previous_week) AS previous_avg_rating
-    """
-
-    job_config = bigquery.QueryJobConfig(
-        query_parameters=[
-            bigquery.ScalarQueryParameter("start_date", "DATE", start_date),
-            bigquery.ScalarQueryParameter("end_date", "DATE", end_date),
-            bigquery.ScalarQueryParameter("previous_start", "DATE", previous_start),
-            bigquery.ScalarQueryParameter("previous_end", "DATE", previous_end),
-        ]
+    WITH current_week AS (
+      SELECT rating
+      FROM `trustpilot-satisfaction.reviews_dataset.reviews`
+      WHERE scrape_date >= @start_date
+        AND scrape_date < DATE_ADD( @end_date, INTERVAL 1 DAY)
+    ),
+    previous_week AS (
+      SELECT rating
+      FROM `trustpilot-satisfaction.reviews_dataset.reviews`
+      WHERE scrape_date >= @previous_start
+        AND scrape_date < DATE_ADD( @previous_end, INTERVAL 1 DAY)
     )
-
-    result = client.query(query, job_config=job_config).result()
-    row = list(result)[0]
-
+    SELECT
+      (SELECT COUNT(*) FROM current_week)                         AS current_reviews,
+      (SELECT COUNT(*) FROM previous_week)                        AS previous_reviews,
+      (SELECT ROUND(IFNULL(AVG(rating),0), 2) FROM current_week)  AS current_avg_rating,
+      (SELECT ROUND(IFNULL(AVG(rating),0), 2) FROM previous_week) AS previous_avg_rating
+    """
+    job_config = bigquery.QueryJobConfig(query_parameters=[
+        bigquery.ScalarQueryParameter("start_date", "DATE", start_date),
+        bigquery.ScalarQueryParameter("end_date", "DATE", end_date),
+        bigquery.ScalarQueryParameter("previous_start", "DATE", previous_start),
+        bigquery.ScalarQueryParameter("previous_end", "DATE", previous_end),
+    ])
+    row = list(client.query(query, job_config=job_config).result())[0]
     return DashboardKPIs(
         current_reviews=row.current_reviews or 0,
         previous_reviews=row.previous_reviews or 0,
         delta_reviews=(row.current_reviews or 0) - (row.previous_reviews or 0),
         current_avg_rating=row.current_avg_rating or 0.0,
         previous_avg_rating=row.previous_avg_rating or 0.0,
-        delta_avg_rating=round(
-            (row.current_avg_rating or 0) - (row.previous_avg_rating or 0), 2
-        ),
+        delta_avg_rating=round((row.current_avg_rating or 0) - (row.previous_avg_rating or 0), 2),
     )
 
 
