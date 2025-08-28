@@ -1,8 +1,6 @@
 import logging
 import os
 import sys
-import hashlib
-from datetime import datetime
 from dotenv import load_dotenv
 from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
@@ -32,11 +30,6 @@ def create_api_app():
         gcp_credentials_json = os.getenv("GOOGLE_APPLICATION_CREDENTIALS_JSON")
         if not gcp_credentials_json:
             raise RuntimeError("La variable GOOGLE_APPLICATION_CREDENTIALS_JSON n'est pas définie")
-
-        # Calcule et log le hash des credentials pour vérification
-        cred_hash = hashlib.sha256(gcp_credentials_json.encode('utf-8')).hexdigest()
-        print(f"DEBUG: SHA-256 Hash of credentials: {cred_hash}")
-        print(f"DEBUG: Container current UTC time: {datetime.utcnow()}")
 
         # Écrit le fichier temporaire à partir du contenu JSON
         creds_path = "/tmp/gcp_creds.json"
@@ -78,7 +71,7 @@ def create_api_app():
     @app.exception_handler(Exception)
     async def all_errors(request: Request, exc: Exception):
         logger.exception("Unhandled error on %s %s", request.method, request.url.path)
-        return JSONResponse({"ok": False, "error": "internal_error", "detail": str(exc)}, status_code=500)
+        return JSONResponse({"ok": False, "error": "internal_error"}, status_code=500)
 
     app.add_middleware(
         CORSMiddleware,
