@@ -55,9 +55,15 @@ def read_dashboard_kpis(
     start_date: date,
     end_date: date,
     client: Client = Depends(get_bq_client),
-    current_user: str = Depends(get_current_user), # Ajout de la dépendance de sécurité
+    current_user: str = Depends(get_current_user),  # Ajout de la dépendance de sécurité
 ):
-    return get_weekly_kpis(client, start_date, end_date)
+    try:
+        return get_weekly_kpis(client, start_date, end_date)
+    except Exception as e:
+        # Log l'erreur peut être une bonne pratique ici
+        print(f"An error occurred while fetching dashboard KPIs: {e}")
+        # Retourne une réponse d'erreur générique
+        raise HTTPException(status_code=500, detail=f"Internal server error while processing KPIs: {e}")
 
 
 @router.get("/themes", response_model=TopThemes)

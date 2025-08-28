@@ -71,7 +71,7 @@ def create_api_app():
     @app.exception_handler(Exception)
     async def all_errors(request: Request, exc: Exception):
         logger.exception("Unhandled error on %s %s", request.method, request.url.path)
-        return JSONResponse({"ok": False, "error": "internal_error"}, status_code=500)
+        return JSONResponse({"ok": False, "error": "internal_error", "detail": str(exc)}, status_code=500)
 
     app.add_middleware(
         CORSMiddleware,
