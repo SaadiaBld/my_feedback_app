@@ -127,36 +127,27 @@ def get_weekly_satisfaction_trend(
 def get_main_themes_distribution(
     client: bigquery.Client, start_date: date, end_date: date
 ) -> List[ThemeDistribution]:
-
     query = """
+    WITH ta_unique AS (
+      SELECT review_id, topic_id
+      FROM `trustpilot-satisfaction.reviews_dataset.topic_analysis`
+      GROUP BY review_id, topic_id
+    )
     SELECT
-      topic_label AS theme,
+      t.topic_label AS theme,
       COUNT(*) AS count
-    FROM
-      `trustpilot-satisfaction.reviews_dataset.reviews` rev
-    JOIN
-      `trustpilot-satisfaction.reviews_dataset.topic_analysis` ta USING (review_id)
-    JOIN
-      `trustpilot-satisfaction.reviews_dataset.topics` topics USING (topic_id)
-    WHERE
-      rev.scrape_date BETWEEN @start_date AND @end_date
-    GROUP BY
-      topic_label
-    ORDER BY
-      count DESC
+    FROM `trustpilot-satisfaction.reviews_dataset.reviews` r
+    JOIN ta_unique u USING (review_id)
+    JOIN `trustpilot-satisfaction.reviews_dataset.topics` t USING (topic_id)
+    WHERE r.scrape_date >= @start_date
+      AND r.scrape_date < DATE_ADD( @end_date, INTERVAL 1 DAY)
+    GROUP BY t.topic_label
+    ORDER BY count DESC
     LIMIT 6
     """
-
-    job_config = bigquery.QueryJobConfig(
-        query_parameters=[
-            bigquery.ScalarQueryParameter("start_date", "DATE", start_date),
-            bigquery.ScalarQueryParameter("end_date", "DATE", end_date),
-        ]
-    )
-
+    job_config = bigquery.QueryJobConfig(query_parameters=[
+        bigquery.ScalarQueryParameter("start_date", "DATE", start_date),
+        bigquery.ScalarQueryParameter("end_date", "DATE", end_date),
+    ])
     result = client.query(query, job_config=job_config).result()
-
-    return [
-        ThemeDistribution(theme=row["theme"], count=row["count"])
-        for row in result
-    ]
+    return [ThemeDistribution(theme=row["theme"], count=row["count"]) for row in result]
