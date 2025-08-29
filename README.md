@@ -170,13 +170,13 @@ La chaîne est composée de trois jobs séquentiels qui dépendent les uns des a
 *   **Condition :** Ne s'exécute que lors d'un `push` sur `main` (ou un lancement manuel).
 *   **Tâches :**
     1.  Attend 10 secondes pour laisser le temps aux services de redémarrer sur Render.
-    2.  Vérifie à intervalle régulier les points de terminaison de santé (`/health` et `/healthz`) de l'API et de l'application pour s'assurer qu'elles sont bien en ligne après le déploiement.
+    2.  Vérifie à intervalle régulier les points de terminaison de santé (`/health` et `/healthz`) de l'API et de l'application pour s'assurer qu'elles sont bien en ligne après le déploiement. 
 
 ## Tests automatiques
 
 Les tests sont lancés automatiquement à chaque push ou pull request sur la branche main via GitHub Actions.
 
-    Le fichier de configuration est situé ici : .github/workflows/test.yml
+    Le fichier de configuration est situé ici : .github/workflows/deploy.yml
 
     Il installe les dépendances de chaque service et lance pytest.
 
