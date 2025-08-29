@@ -19,6 +19,7 @@ Ce projet est une application web qui affiche des données depuis une API, le to
 
 ## Prérequis
 
+
 *   Python 3.10 ou supérieur
 *   Un environnement virtuel Python
 *   Accès à un projet GCP pour BigQuery
@@ -164,6 +165,7 @@ La chaîne est composée de trois jobs séquentiels qui dépendent les uns des a
 *   **Tâches :**
     1.  Appelle le webhook de déploiement de l'API sur Render.
     2.  Appelle le webhook de déploiement de l'application web sur Render.
+
 
 #### 3. `smoke-test`
 *   **Dépendance :** Ne se lance que si le job `deploy` a été déclenché.
