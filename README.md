@@ -30,7 +30,7 @@ Ce projet est une application web qui affiche des données depuis une API, le to
 
     ```bash
     git clone <url_du_depot>
-    cd my_feedback_app_clean # Assurez-vous d'être dans le bon répertoire
+    cd my_feedback_app_clean 
     ```
 
 2.  **Créez et activez un environnement virtuel :**
@@ -169,7 +169,7 @@ La chaîne est composée de trois jobs séquentiels qui dépendent les uns des a
 *   **Dépendance :** Ne se lance que si le job `deploy` a été déclenché.
 *   **Condition :** Ne s'exécute que lors d'un `push` sur `main` (ou un lancement manuel).
 *   **Tâches :**
-    1.  Attend 30 secondes pour laisser le temps aux services de redémarrer sur Render.
+    1.  Attend 10 secondes pour laisser le temps aux services de redémarrer sur Render.
     2.  Vérifie à intervalle régulier les points de terminaison de santé (`/health` et `/healthz`) de l'API et de l'application pour s'assurer qu'elles sont bien en ligne après le déploiement.
 
 ## Tests automatiques
