@@ -19,6 +19,7 @@ Ce projet est une application web qui affiche des données depuis une API, le to
 
 ## Prérequis
 
+
 *   Python 3.10 ou supérieur
 *   Un environnement virtuel Python
 *   Accès à un projet GCP pour BigQuery
