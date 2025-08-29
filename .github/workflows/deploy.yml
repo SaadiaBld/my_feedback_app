@@ -58,7 +58,8 @@ jobs:
           pip install -r app/requirements.txt
           pip install -r requirements-test.txt
       
-      # AJOUT: Etape pour attendre que la BDD soit prête
+      # AJOUT: Etape pour attendre que la BDD soit prête; la bdd est démarrée par le service postgres ci-dessus et permet 
+      # de mettre en place une BDD de test pour pytest (la BDD de test est détruite à la fin du job)
       - name: Wait for PostgreSQL
         run: |
           for i in {1..20}; do
@@ -92,7 +93,7 @@ jobs:
         run: sleep 30
 
       - name: Smoke Test API
-        run: |
+        run: | #execute une boucle pour checker si la route health renvoie 200. Si renvoie 200 alors smoke test ok, sinon on attend 10s et on retente, max 30 fois
           for i in {1..30}; do
             if curl -fsS https://trustpilot-api.onrender.com/api/dashboard/health >/dev/null; then
               echo "API OK"; exit 0; fi
@@ -101,7 +102,7 @@ jobs:
           echo "API failed to become healthy" >&2; exit 1
 
       - name: Smoke Test App
-        run: |
+        run: | # idem, on chek la route health de l'app
           for i in {1..30}; do
             if curl -fsS https://my-feedback-app-q9l9.onrender.com/healthz >/dev/null; then
               echo "APP OK"; exit 0; fi

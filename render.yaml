@@ -10,6 +10,6 @@ services:
         value: prod
       - key: RENDER
         value: "true"
-      # API_BASE_URL sera défini dans Render Settings → Environment
+      
     postdeploy: |
       FLASK_APP=app:create_app flask db upgrade --directory app/migrations

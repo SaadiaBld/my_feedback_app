@@ -8,11 +8,11 @@ cd "$(dirname "$0")"/..
 export PYTHONPATH="$PYTHONPATH:$(pwd)"
 
 echo "==> Running Alembic migrations…"
-# Option A : si ton alembic.ini lit l'URL via env (recommandé)
+# Option A : si alembic.ini lit l'URL via env (recommandé)
 #   alembic.ini:  sqlalchemy.url = ${DATABASE_URL}
 alembic upgrade head
 
-# Option B (si tu préfères forcer l’URL via env.py):
+# Option B (pour forcer l’URL via env.py):
 # Dans alembic/env.py, faire:
 #   import os
 #   from alembic import context
