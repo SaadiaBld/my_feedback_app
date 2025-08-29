@@ -9,6 +9,7 @@ on:
   push:
     branches:
       - main
+      - debug-connection_errors_on_deploy_render
   # Garde la possibilité de lancer manuellement
   workflow_dispatch:
 
@@ -62,7 +63,7 @@ jobs:
       # de mettre en place une BDD de test pour pytest (la BDD de test est détruite à la fin du job)
       - name: Wait for PostgreSQL
         run: |
-          for i in {1..20}; do
+          for i in {1..10}; do
             pg_isready -h "$POSTGRES_HOST" -p "$POSTGRES_PORT" -U "$POSTGRES_USER" -d "$POSTGRES_DB" && break
             echo "Waiting for PostgreSQL..."
             sleep 3
