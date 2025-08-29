@@ -165,6 +165,7 @@ La chaîne est composée de trois jobs séquentiels qui dépendent les uns des a
     1.  Appelle le webhook de déploiement de l'API sur Render.
     2.  Appelle le webhook de déploiement de l'application web sur Render.
 
+
 #### 3. `smoke-test`
 *   **Dépendance :** Ne se lance que si le job `deploy` a été déclenché.
 *   **Condition :** Ne s'exécute que lors d'un `push` sur `main` (ou un lancement manuel).
