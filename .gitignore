@@ -176,7 +176,6 @@ credentials
 
 #archive
 /archives
-qfk
 .coverage*
 todo.md
 .benchmarks/
